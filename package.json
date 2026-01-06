@@ -35,6 +35,7 @@
   "pkg": {
     "assets": [
       "public/**/*",
+      "icons/**/*",
       "node_modules/@picovoice/pvrecorder-node/**/*",
       "node_modules/robotjs/**/*",
       "node_modules/uiohook-napi/**/*"
