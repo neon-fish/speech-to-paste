@@ -9,8 +9,8 @@ A Windows desktop application that captures audio from your microphone, transcri
   - Red icon: Recording
   - Orange icon: Transcribing
 - **Global Hotkeys**: Works across all applications
-  - `Ctrl+Shift+F9`: Push-to-talk (hold to record, release to transcribe)
-  - `Ctrl+Shift+F10`: Toggle continuous listening mode (on/off)
+  - `Pause/Break`: Push-to-talk (hold to record, release to transcribe)
+  - `Shift+Pause/Break`: Toggle continuous listening mode (on/off)
 - **Web Interface**: Configure and monitor the application at http://localhost:5933
   - Set your OpenAI API key
   - View transcription history
@@ -50,9 +50,9 @@ A Windows desktop application that captures audio from your microphone, transcri
 ## Usage
 
 1. The application starts in the system tray (look for the gray circular icon)
-2. Press and hold `Ctrl+Shift+F9` to record audio
+2. Press and hold `Pause/Break` to record audio
 3. Release to automatically transcribe and paste the text
-4. Or press `Ctrl+Shift+F10` to toggle continuous listening mode
+4. Or press `Shift+Pause/Break` to toggle continuous listening mode
 
 ## Packaging
 
