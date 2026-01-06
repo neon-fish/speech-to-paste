@@ -4,6 +4,7 @@ import * as path from 'path';
 import { ConfigManager } from './config';
 import { LocalSpeechRecogniser } from './localSpeechRecogniser';
 import { DEFAULT_PORT } from './constants';
+import { AudioRecorder } from './audioRecorder';
 
 export interface TranscriptionEntry {
   timestamp: Date;
@@ -21,10 +22,12 @@ export class WebServer {
   private currentStatus: AppStatus = 'idle';
   private hotkeysEnabled = true;
   private configManager: ConfigManager;
+  private audioRecorder: AudioRecorder;
 
-  constructor(port: number = DEFAULT_PORT, configManager: ConfigManager) {
+  constructor(port: number = DEFAULT_PORT, configManager: ConfigManager, audioRecorder: AudioRecorder) {
     this.port = port;
     this.configManager = configManager;
+    this.audioRecorder = audioRecorder;
     this.app = express();
     this.app.use(cors());
     this.app.use(express.json());
@@ -74,6 +77,7 @@ export class WebServer {
         localWhisperError: LocalSpeechRecogniser.getInitError(),
         audioFeedbackEnabled: this.configManager.getAudioFeedbackEnabled(),
         autoPasteEnabled: this.configManager.getAutoPasteEnabled(),
+        audioDeviceIndex: this.configManager.getAudioDeviceIndex(),
       });
     });
 
@@ -145,6 +149,31 @@ export class WebServer {
         res.json({ success: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update config' });
+      }
+    });
+
+    // Get available audio devices
+    this.app.get('/api/devices', (req, res) => {
+      try {
+        const devices = this.audioRecorder.getAvailableDevices();
+        res.json({ devices });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to get audio devices' });
+      }
+    });
+
+    // Set audio device
+    this.app.post('/api/config/audio-device', (req, res) => {
+      try {
+        const { deviceIndex } = req.body;
+        if (typeof deviceIndex !== 'number') {
+          return res.status(400).json({ error: 'deviceIndex must be a number' });
+        }
+        this.configManager.updateConfig({ audioDeviceIndex: deviceIndex });
+        this.audioRecorder.setDevice(deviceIndex);
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update audio device' });
       }
     });
   }

@@ -8,6 +8,7 @@ export interface Config {
   localWhisperModel: WhisperModelSize;
   audioFeedbackEnabled: boolean;
   autoPasteEnabled: boolean;
+  audioDeviceIndex: number;
 }
 
 export class ConfigManager {
@@ -41,6 +42,7 @@ export class ConfigManager {
       localWhisperModel: 'base',
       audioFeedbackEnabled: true,
       autoPasteEnabled: true,
+      audioDeviceIndex: -1,
     };
 
     // Write default config with helpful comments
@@ -55,7 +57,9 @@ export class ConfigManager {
       "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
       "audioFeedbackEnabled": true,
       "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
-      "autoPasteEnabled": true
+      "autoPasteEnabled": true,
+      "_audioDeviceOptions": "Audio input device index (-1 for default device, use web UI to see available devices)",
+      "audioDeviceIndex": -1
     };
 
     try {
@@ -87,6 +91,7 @@ export class ConfigManager {
       "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
       "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
       "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
+      "_audioDeviceOptions": "Audio input device index (-1 for default device, use web UI to see available devices)",
       ...this.config
     };
 
@@ -125,5 +130,9 @@ export class ConfigManager {
 
   getAutoPasteEnabled(): boolean {
     return this.config.autoPasteEnabled !== false; // default to true if not set
+  }
+
+  getAudioDeviceIndex(): number {
+    return this.config.audioDeviceIndex ?? -1; // default to -1 (auto) if not set
   }
 }

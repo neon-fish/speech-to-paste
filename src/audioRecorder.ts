@@ -22,6 +22,22 @@ export class AudioRecorder {
   private recordingInterval: NodeJS.Timeout | null = null;
   private timeoutTimer: NodeJS.Timeout | null = null;
   private timeoutCallback: (() => void) | null = null;
+  private deviceIndex: number = -1;
+
+  /**
+   * Get list of available audio input devices
+   */
+  getAvailableDevices(): string[] {
+    return PvRecorder.getAvailableDevices();
+  }
+
+  /**
+   * Set the audio input device to use
+   * @param deviceIndex Device index (-1 for default device)
+   */
+  setDevice(deviceIndex: number): void {
+    this.deviceIndex = deviceIndex;
+  }
 
   startRecording(timeoutMs?: number, onTimeout?: () => void): void {
     console.log('Starting recording...');
@@ -29,9 +45,14 @@ export class AudioRecorder {
     // Get default audio device
     const devices = PvRecorder.getAvailableDevices();
     console.log('Available audio devices:', devices);
+    if (this.deviceIndex >= 0 && this.deviceIndex < devices.length) {
+      console.log(`Using device ${this.deviceIndex}: ${devices[this.deviceIndex]}`);
+    } else {
+      console.log('Using default audio device');
+    }
     
     // Create recorder with 16kHz sample rate, 512 frame length
-    this.recorder = new PvRecorder(512, -1); // -1 = default device
+    this.recorder = new PvRecorder(512, this.deviceIndex);
     this.recorder.start();
     
     this.recording = true;

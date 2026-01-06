@@ -86,6 +86,17 @@
         </label>
         <small>Automatically paste text into active window. When disabled, text is copied to clipboard with a notification.</small>
       </div>
+
+      <div class="config-item">
+        <label for="audioDevice">Audio Input Device:</label>
+        <div class="select-group">
+          <select id="audioDevice">
+            <option value="-1">Default Device</option>
+          </select>
+          <button id="saveDevice">Save</button>
+        </div>
+        <small>Select which microphone to use for recording</small>
+      </div>
     </div>
 
     <div class="transcriptions" id="transcriptions">

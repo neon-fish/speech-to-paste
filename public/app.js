@@ -33,6 +33,10 @@ async function updateConfig() {
     // Update auto-paste checkbox
     document.getElementById('autoPasteEnabled').checked = data.autoPasteEnabled !== false;
     
+    // Update audio device selection
+    await updateAudioDevices();
+    document.getElementById('audioDevice').value = data.audioDeviceIndex ?? -1;
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -48,6 +52,30 @@ async function updateConfig() {
     }
   } catch (err) {
     console.error('Failed to update config:', err);
+  }
+}
+
+async function updateAudioDevices() {
+  try {
+    const res = await fetch('/api/devices');
+    const data = await res.json();
+    
+    const select = document.getElementById('audioDevice');
+    
+    // Clear existing options except default
+    select.innerHTML = '<option value="-1">Default Device</option>';
+    
+    // Add device options
+    if (data.devices && Array.isArray(data.devices)) {
+      data.devices.forEach((device, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = device;
+        select.appendChild(option);
+      });
+    }
+  } catch (err) {
+    console.error('Failed to load audio devices:', err);
   }
 }
 
@@ -242,6 +270,29 @@ document.getElementById('autoPasteEnabled').addEventListener('change', async (e)
     console.error('Failed to update auto-paste:', err);
     alert('Error updating auto-paste setting');
     e.target.checked = !e.target.checked; // revert
+  }
+});
+
+// Audio device selection
+document.getElementById('saveDevice').addEventListener('click', async () => {
+  const deviceIndex = parseInt(document.getElementById('audioDevice').value, 10);
+  
+  try {
+    const res = await fetch('/api/config/audio-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceIndex })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert('Audio device saved! Changes will apply to the next recording.');
+    } else {
+      alert('Failed to save audio device');
+    }
+  } catch (err) {
+    console.error('Failed to save audio device:', err);
+    alert('Error saving audio device');
   }
 });
 

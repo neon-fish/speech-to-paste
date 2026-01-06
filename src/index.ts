@@ -32,12 +32,13 @@ if (!apiKey) {
 const audioRecorder = new AudioRecorder();
 const textInserter = new TextInserter();
 const hotkeyManager = new HotkeyManager();
-const webServer = new WebServer(DEFAULT_PORT, configManager);
+const webServer = new WebServer(DEFAULT_PORT, configManager, audioRecorder);
 const audioFeedback = new AudioFeedback();
 
 // Apply settings from config
 audioFeedback.setEnabled(configManager.getAudioFeedbackEnabled());
 textInserter.setAutoPaste(configManager.getAutoPasteEnabled());
+audioRecorder.setDevice(configManager.getAudioDeviceIndex());
 
 let isToggleListening = false;
 
