@@ -84,6 +84,8 @@ export class WebServer {
         whisperLanguage: this.configManager.getWhisperLanguage(),
         whisperTemperature: this.configManager.getWhisperTemperature(),
         whisperPrompt: this.configManager.getWhisperPrompt(),
+        webServerPort: this.configManager.getWebServerPort(),
+        minimizeOnStartup: this.configManager.getMinimizeOnStartup(),
       });
     });
 
@@ -241,6 +243,60 @@ export class WebServer {
         res.json({ success: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update prompt' });
+      }
+    });
+
+    // Export configuration
+    this.app.get('/api/config/export', (req, res) => {
+      try {
+        const configJson = this.configManager.exportConfig();
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename="speech-to-paste-config.json"');
+        res.send(configJson);
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to export configuration' });
+      }
+    });
+
+    // Import configuration
+    this.app.post('/api/config/import', (req, res) => {
+      try {
+        const { config } = req.body;
+        if (!config || typeof config !== 'object') {
+          return res.status(400).json({ error: 'Invalid configuration data' });
+        }
+        this.configManager.importConfig(JSON.stringify(config));
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to import configuration: ' + (error as Error).message });
+      }
+    });
+
+    // Set web server port
+    this.app.post('/api/config/web-server-port', (req, res) => {
+      try {
+        const { port } = req.body;
+        if (typeof port !== 'number' || port < 1024 || port > 65535) {
+          return res.status(400).json({ error: 'port must be a number between 1024 and 65535' });
+        }
+        this.configManager.updateConfig({ webServerPort: port });
+        res.json({ success: true, requiresRestart: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update port' });
+      }
+    });
+
+    // Toggle minimize on startup
+    this.app.post('/api/config/minimize-on-startup', (req, res) => {
+      try {
+        const { enabled } = req.body;
+        if (typeof enabled !== 'boolean') {
+          return res.status(400).json({ error: 'enabled must be a boolean' });
+        }
+        this.configManager.updateConfig({ minimizeOnStartup: enabled });
+        res.json({ success: true, requiresRestart: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update minimize on startup' });
       }
     });
   }

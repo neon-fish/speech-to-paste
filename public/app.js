@@ -49,6 +49,12 @@ async function updateConfig() {
     // Update prompt
     document.getElementById('whisperPrompt').value = data.whisperPrompt || '';
     
+    // Update web server port
+    document.getElementById('webServerPort').value = data.webServerPort ?? 5933;
+    
+    // Update minimize on startup
+    document.getElementById('minimizeOnStartup').checked = data.minimizeOnStartup === true;
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -155,6 +161,64 @@ document.getElementById('clearHistory').addEventListener('click', async () => {
       console.error('Failed to clear history:', err);
     }
   }
+});
+
+// Export configuration
+document.getElementById('exportConfig').addEventListener('click', async () => {
+  try {
+    const res = await fetch('/api/config/export');
+    if (res.ok) {
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `speech-to-paste-config-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } else {
+      alert('Failed to export configuration');
+    }
+  } catch (err) {
+    console.error('Failed to export config:', err);
+    alert('Error exporting configuration');
+  }
+});
+
+// Import configuration
+document.getElementById('importConfig').addEventListener('click', () => {
+  document.getElementById('importFileInput').click();
+});
+
+document.getElementById('importFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const config = JSON.parse(text);
+    
+    const res = await fetch('/api/config/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert('Configuration imported successfully! Please restart the application for all settings to take effect.');
+    } else {
+      const error = await res.json();
+      alert('Failed to import configuration: ' + (error.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Failed to import config:', err);
+    alert('Error importing configuration: Invalid JSON file');
+  }
+  
+  // Reset file input
+  e.target.value = '';
 });
 
 document.getElementById('saveApiKey').addEventListener('click', async () => {
@@ -415,6 +479,59 @@ document.getElementById('savePrompt').addEventListener('click', async () => {
   } catch (err) {
     console.error('Failed to save prompt:', err);
     alert('Error saving prompt');
+  }
+});
+
+// Web server port
+document.getElementById('savePort').addEventListener('click', async () => {
+  const port = parseInt(document.getElementById('webServerPort').value, 10);
+  
+  if (isNaN(port) || port < 1024 || port > 65535) {
+    alert('Port must be between 1024 and 65535');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/config/web-server-port', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ port })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert(`Port set to ${port}. Please restart the application for this change to take effect.`);
+    } else {
+      alert('Failed to save port');
+    }
+  } catch (err) {
+    console.error('Failed to save port:', err);
+    alert('Error saving port');
+  }
+});
+
+// Minimize on startup toggle
+document.getElementById('minimizeOnStartup').addEventListener('change', async (e) => {
+  try {
+    const res = await fetch('/api/config/minimize-on-startup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: e.target.checked })
+    });
+    
+    if (res.ok) {
+      alert(e.target.checked ? 
+        'Minimize on startup enabled. Application will start minimized to tray on next launch.' :
+        'Minimize on startup disabled. Console window will show on next launch.'
+      );
+    } else {
+      alert('Failed to update minimize on startup setting');
+      e.target.checked = !e.target.checked; // revert
+    }
+  } catch (err) {
+    console.error('Failed to update minimize on startup:', err);
+    alert('Error updating setting');
+    e.target.checked = !e.target.checked; // revert
   }
 });
 

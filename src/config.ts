@@ -13,6 +13,8 @@ export interface Config {
   whisperLanguage: string;
   whisperTemperature: number;
   whisperPrompt: string;
+  webServerPort: number;
+  minimizeOnStartup: boolean;
 }
 
 export class ConfigManager {
@@ -51,6 +53,8 @@ export class ConfigManager {
       whisperLanguage: '',
       whisperTemperature: 0,
       whisperPrompt: '',
+      webServerPort: 5933,
+      minimizeOnStartup: false,
     };
 
     // Write default config with helpful comments
@@ -75,7 +79,11 @@ export class ConfigManager {
       "_temperatureOptions": "Temperature for transcription (0.0-1.0). Lower = more consistent, higher = more creative. Default: 0",
       "whisperTemperature": 0,
       "_promptOptions": "Optional prompt to guide transcription. Useful for context, terminology, or fixing common errors.",
-      "whisperPrompt": ""
+      "whisperPrompt": "",
+      "_webServerPortOptions": "Port for the web interface (default: 5933). Requires restart to take effect.",
+      "webServerPort": 5933,
+      "_minimizeOnStartupOptions": "Start minimized to system tray without showing console window (Windows only)",
+      "minimizeOnStartup": false
     };
 
     try {
@@ -112,6 +120,8 @@ export class ConfigManager {
       "_languageOptions": "Language code for transcription (e.g., 'en', 'es', 'fr') or empty for auto-detect",
       "_temperatureOptions": "Temperature for transcription (0.0-1.0). Lower = more consistent, higher = more creative. Default: 0",
       "_promptOptions": "Optional prompt to guide transcription. Useful for context, terminology, or fixing common errors.",
+      "_webServerPortOptions": "Port for the web interface (default: 5933). Requires restart to take effect.",
+      "_minimizeOnStartupOptions": "Start minimized to system tray without showing console window (Windows only)",
       ...this.config
     };
 
@@ -172,5 +182,41 @@ export class ConfigManager {
 
   getWhisperPrompt(): string {
     return this.config.whisperPrompt || '';
+  }
+
+  getWebServerPort(): number {
+    const port = this.config.webServerPort ?? 5933;
+    return Math.max(1024, Math.min(65535, port)); // clamp between 1024 and 65535
+  }
+
+  getMinimizeOnStartup(): boolean {
+    return this.config.minimizeOnStartup === true; // default to false if not set
+  }
+
+  /**
+   * Export configuration as JSON string (without comments)
+   */
+  exportConfig(): string {
+    return JSON.stringify(this.config, null, 2);
+  }
+
+  /**
+   * Import configuration from JSON string
+   */
+  importConfig(jsonString: string): void {
+    try {
+      const importedConfig = JSON.parse(jsonString);
+      
+      // Validate that it's a valid config object
+      if (typeof importedConfig !== 'object' || importedConfig === null) {
+        throw new Error('Invalid configuration format');
+      }
+
+      // Update with imported values
+      this.updateConfig(importedConfig);
+    } catch (error) {
+      console.error('Error importing config:', error);
+      throw new Error('Failed to import configuration: ' + (error as Error).message);
+    }
   }
 }

@@ -20,6 +20,9 @@
     <div class="controls">
       <button id="toggleHotkeys">Disable Hotkeys</button>
       <button id="clearHistory">Clear History</button>
+      <button id="exportConfig">Export Config</button>
+      <button id="importConfig">Import Config</button>
+      <input type="file" id="importFileInput" accept=".json" style="display: none;">
       <button onclick="location.reload()">Refresh</button>
     </div>
 
@@ -148,6 +151,23 @@
           <button id="savePrompt">Save</button>
         </div>
         <small>Optional text to guide the transcription style, include specific vocabulary, or fix recurring errors. Example: "This transcript contains technical terms like API, TypeScript, and Node.js."</small>
+      </div>
+
+      <div class="config-item">
+        <label for="webServerPort">Web Server Port:</label>
+        <div class="select-group">
+          <input type="number" id="webServerPort" min="1024" max="65535" value="5933" style="width: 100px;">
+          <button id="savePort">Save</button>
+        </div>
+        <small>Port for the web interface (1024-65535). Requires application restart to take effect. Default: 5933</small>
+      </div>
+
+      <div class="config-item">
+        <label class="checkbox-label">
+          <input type="checkbox" id="minimizeOnStartup">
+          <span>Minimize to Tray on Startup</span>
+        </label>
+        <small>Start minimized without showing the console window (Windows only). Requires application restart to take effect.</small>
       </div>
     </div>
 

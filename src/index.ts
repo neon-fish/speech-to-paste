@@ -18,11 +18,25 @@ dotenv.config();
 // Initialize config manager
 const configManager = new ConfigManager();
 
+// Hide console window if minimize on startup is enabled (Windows only)
+if (process.platform === 'win32' && configManager.getMinimizeOnStartup()) {
+  try {
+    // Use PowerShell to hide the console window
+    exec('powershell -Command "Add-Type -Name Window -Namespace Console -MemberDefinition \'[DllImport(\\"Kernel32.dll\\")]public static extern IntPtr GetConsoleWindow();[DllImport(\\"user32.dll\\")]public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);\'; [Console.Window]::ShowWindow([Console.Window]::GetConsoleWindow(), 0)"');
+    console.log('Console window hidden (minimize on startup enabled)');
+  } catch (error) {
+    console.error('Failed to hide console window:', error);
+  }
+}
+
+// Get configured port
+const webServerPort = configManager.getWebServerPort();
+
 // Get API key from config or environment variable
 const apiKey = configManager.getApiKey() || process.env.OPENAI_API_KEY;
 if (!apiKey) {
   console.error('Error: OpenAI API key not configured');
-  console.error(`Please configure your API key via the web interface at http://localhost:${DEFAULT_PORT}`);
+  console.error(`Please configure your API key via the web interface at http://localhost:${webServerPort}`);
   console.error('Or set it in config.json next to the executable');
   console.error('You can get an API key from: https://platform.openai.com/api-keys');
   // Don't exit, let the web server start so user can configure it
@@ -32,7 +46,7 @@ if (!apiKey) {
 const audioRecorder = new AudioRecorder();
 const textInserter = new TextInserter();
 const hotkeyManager = new HotkeyManager();
-const webServer = new WebServer(DEFAULT_PORT, configManager, audioRecorder);
+const webServer = new WebServer(webServerPort, configManager, audioRecorder);
 const audioFeedback = new AudioFeedback();
 
 // Apply settings from config
@@ -91,7 +105,7 @@ function getSpeechRecognizer(): ISpeechRecogniser | null {
       console.error(error || 'whisper-node not properly initialized');
       console.error('');
       console.error('Local Whisper requires native compilation of whisper.cpp.');
-      console.error(`Please switch to API mode via the web interface at http://localhost:${DEFAULT_PORT}`);
+      console.error(`Please switch to API mode via the web interface at http://localhost:${webServerPort}`);
       console.error('or see the README for local setup instructions.');
       return null;
     }
