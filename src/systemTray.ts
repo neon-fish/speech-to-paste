@@ -56,8 +56,8 @@ export class SystemTray {
       },
       SysTray.separator,
       {
-        title: 'Open Settings',
-        tooltip: 'Open web interface',
+        title: 'Open web interface',
+        tooltip: 'Edit settings & view transcriptions',
         enabled: true,
       },
       SysTray.separator,
