@@ -43,6 +43,12 @@ async function updateConfig() {
     // Update language selection
     document.getElementById('whisperLanguage').value = data.whisperLanguage || '';
     
+    // Update temperature
+    document.getElementById('whisperTemperature').value = data.whisperTemperature ?? 0;
+    
+    // Update prompt
+    document.getElementById('whisperPrompt').value = data.whisperPrompt || '';
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -354,6 +360,61 @@ document.getElementById('saveLanguage').addEventListener('click', async () => {
   } catch (err) {
     console.error('Failed to save language:', err);
     alert('Error saving language');
+  }
+});
+
+// Temperature
+document.getElementById('saveTemperature').addEventListener('click', async () => {
+  const temperature = parseFloat(document.getElementById('whisperTemperature').value);
+  
+  if (isNaN(temperature) || temperature < 0 || temperature > 1) {
+    alert('Temperature must be between 0 and 1');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/config/whisper-temperature', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ temperature })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert(`Temperature set to: ${temperature} (${temperature === 0 ? 'most consistent' : temperature === 1 ? 'most creative' : 'balanced'})`);
+    } else {
+      alert('Failed to save temperature');
+    }
+  } catch (err) {
+    console.error('Failed to save temperature:', err);
+    alert('Error saving temperature');
+  }
+});
+
+// Prompt
+document.getElementById('savePrompt').addEventListener('click', async () => {
+  const prompt = document.getElementById('whisperPrompt').value;
+  
+  try {
+    const res = await fetch('/api/config/whisper-prompt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      if (prompt) {
+        alert('Prompt saved! This will guide transcription style.');
+      } else {
+        alert('Prompt cleared.');
+      }
+    } else {
+      alert('Failed to save prompt');
+    }
+  } catch (err) {
+    console.error('Failed to save prompt:', err);
+    alert('Error saving prompt');
   }
 });
 

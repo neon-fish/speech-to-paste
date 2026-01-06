@@ -30,15 +30,27 @@ export class LocalSpeechRecogniser implements ISpeechRecogniser {
   private modelSize: WhisperModelSize;
   private modelPath: string | undefined;
   private language: string = '';
+  private temperature: number = 0;
+  private prompt: string = '';
 
-  constructor(modelSize: WhisperModelSize = 'base', language?: string, modelPath?: string) {
+  constructor(modelSize: WhisperModelSize = 'base', language?: string, temperature?: number, prompt?: string, modelPath?: string) {
     this.modelSize = modelSize;
     this.language = language || '';
+    this.temperature = temperature ?? 0;
+    this.prompt = prompt || '';
     this.modelPath = modelPath;
   }
 
   setLanguage(language: string): void {
     this.language = language;
+  }
+
+  setTemperature(temperature: number): void {
+    this.temperature = Math.max(0, Math.min(1, temperature));
+  }
+
+  setPrompt(prompt: string): void {
+    this.prompt = prompt;
   }
 
   async recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string> {
@@ -83,6 +95,16 @@ export class LocalSpeechRecogniser implements ISpeechRecogniser {
         console.log(`Language set to: ${this.language}`);
       } else {
         console.log('Using English-specific model');
+      }
+      
+      if (this.temperature !== 0) {
+        options.temperature = this.temperature;
+        console.log(`Temperature: ${this.temperature}`);
+      }
+      
+      if (this.prompt) {
+        options.prompt = this.prompt;
+        console.log(`Prompt: ${this.prompt.substring(0, 50)}${this.prompt.length > 50 ? '...' : ''}`);
       }
       
       // Transcribe using whisper-node

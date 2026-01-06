@@ -20,14 +20,26 @@ import { ISpeechRecogniser } from './ISpeechRecogniser';
 export class SpeechRecogniser implements ISpeechRecogniser {
   private openai: OpenAI;
   private language: string = '';
+  private temperature: number = 0;
+  private prompt: string = '';
 
-  constructor(apiKey: string, language?: string) {
+  constructor(apiKey: string, language?: string, temperature?: number, prompt?: string) {
     this.openai = new OpenAI({ apiKey });
     this.language = language || '';
+    this.temperature = temperature ?? 0;
+    this.prompt = prompt || '';
   }
 
   setLanguage(language: string): void {
     this.language = language;
+  }
+
+  setTemperature(temperature: number): void {
+    this.temperature = Math.max(0, Math.min(1, temperature));
+  }
+
+  setPrompt(prompt: string): void {
+    this.prompt = prompt;
   }
 
   async recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string> {
@@ -61,6 +73,18 @@ export class SpeechRecogniser implements ISpeechRecogniser {
         console.log(`Language set to: ${this.language}`);
       } else {
         console.log('Language: auto-detect');
+      }
+      
+      // Add temperature if not default
+      if (this.temperature !== 0) {
+        params.temperature = this.temperature;
+        console.log(`Temperature: ${this.temperature}`);
+      }
+      
+      // Add prompt if specified
+      if (this.prompt) {
+        params.prompt = this.prompt;
+        console.log(`Prompt: ${this.prompt.substring(0, 50)}${this.prompt.length > 50 ? '...' : ''}`);
       }
       
       const transcription = await this.openai.audio.transcriptions.create(params);

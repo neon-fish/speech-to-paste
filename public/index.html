@@ -131,6 +131,24 @@
         </div>
         <small>Specify the language for better accuracy, or leave as auto-detect</small>
       </div>
+
+      <div class="config-item">
+        <label for="whisperTemperature">Sampling Temperature (0-1):</label>
+        <div class="select-group">
+          <input type="number" id="whisperTemperature" min="0" max="1" step="0.1" value="0" style="width: 80px;">
+          <button id="saveTemperature">Save</button>
+        </div>
+        <small>Controls randomness: 0 = most consistent, 1 = most creative. Default: 0 (recommended for accuracy)</small>
+      </div>
+
+      <div class="config-item">
+        <label for="whisperPrompt">Initial Prompt:</label>
+        <div class="textarea-group">
+          <textarea id="whisperPrompt" rows="3" placeholder="Optional prompt to guide transcription..."></textarea>
+          <button id="savePrompt">Save</button>
+        </div>
+        <small>Optional text to guide the transcription style, include specific vocabulary, or fix recurring errors. Example: "This transcript contains technical terms like API, TypeScript, and Node.js."</small>
+      </div>
     </div>
 
     <div class="transcriptions" id="transcriptions">

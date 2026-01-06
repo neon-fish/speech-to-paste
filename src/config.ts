@@ -11,6 +11,8 @@ export interface Config {
   audioDeviceIndex: number;
   transcriptionHistoryLimit: number;
   whisperLanguage: string;
+  whisperTemperature: number;
+  whisperPrompt: string;
 }
 
 export class ConfigManager {
@@ -47,6 +49,8 @@ export class ConfigManager {
       audioDeviceIndex: -1,
       transcriptionHistoryLimit: 50,
       whisperLanguage: '',
+      whisperTemperature: 0,
+      whisperPrompt: '',
     };
 
     // Write default config with helpful comments
@@ -67,7 +71,11 @@ export class ConfigManager {
       "_historyLimitOptions": "Maximum number of transcriptions to keep in history (1-1000)",
       "transcriptionHistoryLimit": 50,
       "_languageOptions": "Language code for transcription (e.g., 'en', 'es', 'fr') or empty for auto-detect",
-      "whisperLanguage": ""
+      "whisperLanguage": "",
+      "_temperatureOptions": "Temperature for transcription (0.0-1.0). Lower = more consistent, higher = more creative. Default: 0",
+      "whisperTemperature": 0,
+      "_promptOptions": "Optional prompt to guide transcription. Useful for context, terminology, or fixing common errors.",
+      "whisperPrompt": ""
     };
 
     try {
@@ -102,6 +110,8 @@ export class ConfigManager {
       "_audioDeviceOptions": "Audio input device index (-1 for default device, use web UI to see available devices)",
       "_historyLimitOptions": "Maximum number of transcriptions to keep in history (1-1000)",
       "_languageOptions": "Language code for transcription (e.g., 'en', 'es', 'fr') or empty for auto-detect",
+      "_temperatureOptions": "Temperature for transcription (0.0-1.0). Lower = more consistent, higher = more creative. Default: 0",
+      "_promptOptions": "Optional prompt to guide transcription. Useful for context, terminology, or fixing common errors.",
       ...this.config
     };
 
@@ -153,5 +163,14 @@ export class ConfigManager {
 
   getWhisperLanguage(): string {
     return this.config.whisperLanguage || ''; // empty string = auto-detect
+  }
+
+  getWhisperTemperature(): number {
+    const temp = this.config.whisperTemperature ?? 0;
+    return Math.max(0, Math.min(1, temp)); // clamp between 0 and 1
+  }
+
+  getWhisperPrompt(): string {
+    return this.config.whisperPrompt || '';
   }
 }

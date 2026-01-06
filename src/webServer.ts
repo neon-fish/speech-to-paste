@@ -82,6 +82,8 @@ export class WebServer {
         audioDeviceIndex: this.configManager.getAudioDeviceIndex(),
         transcriptionHistoryLimit: this.configManager.getTranscriptionHistoryLimit(),
         whisperLanguage: this.configManager.getWhisperLanguage(),
+        whisperTemperature: this.configManager.getWhisperTemperature(),
+        whisperPrompt: this.configManager.getWhisperPrompt(),
       });
     });
 
@@ -211,6 +213,34 @@ export class WebServer {
         res.json({ success: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update language' });
+      }
+    });
+
+    // Set Whisper temperature
+    this.app.post('/api/config/whisper-temperature', (req, res) => {
+      try {
+        const { temperature } = req.body;
+        if (typeof temperature !== 'number' || temperature < 0 || temperature > 1) {
+          return res.status(400).json({ error: 'temperature must be a number between 0 and 1' });
+        }
+        this.configManager.updateConfig({ whisperTemperature: temperature });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update temperature' });
+      }
+    });
+
+    // Set Whisper prompt
+    this.app.post('/api/config/whisper-prompt', (req, res) => {
+      try {
+        const { prompt } = req.body;
+        if (typeof prompt !== 'string') {
+          return res.status(400).json({ error: 'prompt must be a string' });
+        }
+        this.configManager.updateConfig({ whisperPrompt: prompt });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update prompt' });
       }
     });
   }

@@ -78,6 +78,8 @@ async function processTranscription(audioData: Int16Array): Promise<void> {
 function getSpeechRecognizer(): ISpeechRecogniser | null {
   const mode = configManager.getWhisperMode();
   const language = configManager.getWhisperLanguage();
+  const temperature = configManager.getWhisperTemperature();
+  const prompt = configManager.getWhisperPrompt();
   
   if (mode === 'local') {
     const modelSize = configManager.getLocalWhisperModel();
@@ -95,7 +97,7 @@ function getSpeechRecognizer(): ISpeechRecogniser | null {
     }
     
     console.log(`Using local Whisper (${modelSize} model)`);
-    return new LocalSpeechRecogniser(modelSize, language);
+    return new LocalSpeechRecogniser(modelSize, language, temperature, prompt);
   } else {
     // API mode
     const apiKey = configManager.getApiKey();
@@ -104,7 +106,7 @@ function getSpeechRecognizer(): ISpeechRecogniser | null {
       return null;
     }
     console.log('Using OpenAI Whisper API');
-    return new SpeechRecogniser(apiKey, language);
+    return new SpeechRecogniser(apiKey, language, temperature, prompt);
   }
 }
 
