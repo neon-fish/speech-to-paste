@@ -1,7 +1,6 @@
 import { existsSync } from 'fs';
 import * as path from 'path';
-
-const player = require('play-sound')({ players: ['mplayer', 'mpg123', 'mpg321', 'mpg123', 'afplay', 'cmdmp3', 'cvlc', 'powershell'] });
+import { exec } from 'child_process';
 
 /**
  * Audio feedback player for user interactions
@@ -28,6 +27,14 @@ export class AudioFeedback {
   }
 
   /**
+   * Play sound file using mpg123
+   */
+  private playSound(soundPath: string): void {
+    const mpg123Path = path.join(__dirname, '..', 'lib', 'mpg123', 'mpg123.exe');
+    exec(`"${mpg123Path}" -q "${soundPath}"`, { windowsHide: true });
+  }
+
+  /**
    * Play sound when recording starts
    * Expected sound: short "da-ding" ascending tone
    */
@@ -36,9 +43,7 @@ export class AudioFeedback {
     
     const startSound = path.join(this.soundsDir, 'start.mp3');
     if (existsSync(startSound)) {
-      player.play(startSound, (err: any) => {
-        if (err) console.error('[AudioFeedback] Error playing start sound:', err.message);
-      });
+      this.playSound(startSound);
     } else {
       console.log('[AudioFeedback] Start sound file not found:', startSound);
     }
@@ -53,9 +58,7 @@ export class AudioFeedback {
     
     const stopSound = path.join(this.soundsDir, 'stop.mp3');
     if (existsSync(stopSound)) {
-      player.play(stopSound, (err: any) => {
-        if (err) console.error('[AudioFeedback] Error playing stop sound:', err.message);
-      });
+      this.playSound(stopSound);
     } else {
       console.log('[AudioFeedback] Stop sound file not found:', stopSound);
     }
