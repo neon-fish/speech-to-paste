@@ -1,6 +1,8 @@
 # Speech-to-Paste
 
-A Windows desktop application that captures audio from your microphone, transcribes speech using OpenAI's Whisper API, and automatically types the result into any focused text field.
+A cross-platform desktop application that captures audio from your microphone, transcribes speech using OpenAI's Whisper API, and automatically types the result into any focused text field.
+
+**Platform Support:** Fully functional on Windows. macOS and Linux support in development (core features implemented, testing in progress).
 
 ## Features
 
@@ -29,7 +31,12 @@ A Windows desktop application that captures audio from your microphone, transcri
    npm install
    ```
 
-   **Note**: On Windows, `robotjs` requires Visual C++ build tools. See the [robotjs documentation](https://github.com/octalmage/robotjs) for details.
+   **Note**: `robotjs` requires platform-specific build tools:
+   - **Windows**: Visual C++ build tools
+   - **macOS**: Xcode Command Line Tools
+   - **Linux**: build-essential package
+   
+   See the [robotjs documentation](https://github.com/octalmage/robotjs) for details.
 
 2. Build the project:
    ```bash
@@ -53,21 +60,26 @@ A Windows desktop application that captures audio from your microphone, transcri
 
 ## Usage
 
-1. The application starts in the system tray (look for the gray circular icon)
-2. Press and hold your configured push-to-talk hotkey (default: `Pause/Break`) to record audio
+1. The application starts in the system tray or menu bar (look for the gray circular icon)
+2. Press and hold your configured push-to-talk hotkey (default: `Pause/Break` on Windows) to record audio
 3. Release to automatically transcribe and paste the text
-4. Or use your toggle hotkey (default: `Shift+Pause/Break`) to enable continuous listening mode
+4. Or use your toggle hotkey (default: `Shift+Pause/Break` on Windows) to enable continuous listening mode
 5. Configure settings, customize hotkeys, and view history at http://localhost:5933
 
 ## Packaging
 
-To create a standalone executable:
+To create standalone executables for all platforms:
 
 ```bash
 npm run package
 ```
 
-The executable will be created in the `bin/` directory and includes all necessary dependencies.
+Executables will be created in the `bin/` directory for:
+- Windows (x64)
+- macOS (x64 and ARM64)
+- Linux (x64)
+
+Each includes all necessary dependencies.
 
 ## Requirements
 
