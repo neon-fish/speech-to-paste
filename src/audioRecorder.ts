@@ -2,6 +2,7 @@ import { PvRecorder } from '@picovoice/pvrecorder-node';
 import { Readable, PassThrough } from 'stream';
 import * as fs from 'fs';
 import * as path from 'path';
+import { MAX_RECORDING_SIZE_BYTES, BYTES_PER_SAMPLE } from './constants';
 
 /**
  * Audio recording module
@@ -20,9 +21,9 @@ export class AudioRecorder {
   private audioBuffer: Int16Array[] = [];
   private recording = false;
   private recordingInterval: NodeJS.Timeout | null = null;
-  private timeoutTimer: NodeJS.Timeout | null = null;
-  private timeoutCallback: (() => void) | null = null;
+  private sizeExceededCallback: (() => void) | null = null;
   private deviceIndex: number = -1;
+  private currentSizeBytes: number = 0;
 
   /**
    * Get list of available audio input devices
@@ -39,7 +40,7 @@ export class AudioRecorder {
     this.deviceIndex = deviceIndex;
   }
 
-  startRecording(timeoutMs?: number, onTimeout?: () => void): void {
+  startRecording(onSizeExceeded?: () => void): void {
     console.log('Starting recording...');
     
     // Get default audio device
@@ -57,17 +58,8 @@ export class AudioRecorder {
     
     this.recording = true;
     this.audioBuffer = [];
-    this.timeoutCallback = onTimeout || null;
-    
-    // Set timeout if specified
-    if (timeoutMs && onTimeout) {
-      this.timeoutTimer = setTimeout(() => {
-        console.log(`Recording timeout reached (${timeoutMs}ms)`);
-        if (this.recording && this.timeoutCallback) {
-          this.timeoutCallback();
-        }
-      }, timeoutMs);
-    }
+    this.currentSizeBytes = 0;
+    this.sizeExceededCallback = onSizeExceeded || null;
     
     // Read audio frames continuously
     this.recordingInterval = setInterval(async () => {
@@ -76,6 +68,15 @@ export class AudioRecorder {
           const frame = await this.recorder.read();
           if (this.recording) { // Double-check we're still recording
             this.audioBuffer.push(frame);
+            this.currentSizeBytes += frame.length * BYTES_PER_SAMPLE;
+            
+            // Check if we've exceeded the size limit
+            if (this.currentSizeBytes >= MAX_RECORDING_SIZE_BYTES) {
+              console.log(`Recording size limit reached (${this.currentSizeBytes} bytes)`);
+              if (this.sizeExceededCallback) {
+                this.sizeExceededCallback();
+              }
+            }
           }
         } catch (error) {
           // Ignore errors when stopping
@@ -93,12 +94,8 @@ export class AudioRecorder {
     // Set flag first to stop new reads
     this.recording = false;
     
-    // Clear timeout timer
-    if (this.timeoutTimer) {
-      clearTimeout(this.timeoutTimer);
-      this.timeoutTimer = null;
-    }
-    this.timeoutCallback = null;
+    // Clear callback
+    this.sizeExceededCallback = null;
     
     // Clear interval
     if (this.recordingInterval) {
@@ -127,7 +124,22 @@ export class AudioRecorder {
     }
     
     this.audioBuffer = [];
+    this.currentSizeBytes = 0;
     return combined;
+  }
+  
+  /**
+   * Get the current recording size in bytes
+   */
+  getCurrentSizeBytes(): number {
+    return this.currentSizeBytes;
+  }
+  
+  /**
+   * Get the maximum recording size in bytes
+   */
+  getMaxSizeBytes(): number {
+    return MAX_RECORDING_SIZE_BYTES;
   }
 
   isRecording(): boolean {

@@ -119,19 +119,14 @@ hotkeyManager.registerPushToTalk(
       webServer.setStatus('recording');
       systemTray.setStatus('recording');
       
-      // Set 29-second timeout for API mode (Whisper API has 30s limit)
-      const mode = configManager.getWhisperMode();
-      if (mode === 'api') {
-        audioRecorder.startRecording(29000, async () => {
-          console.log('API timeout: Auto-stopping recording at 29 seconds');
-          if (audioRecorder.isRecording()) {
-            const audioData = audioRecorder.stopRecording();
-            await processTranscription(audioData);
-          }
-        });
-      } else {
-        audioRecorder.startRecording();
-      }
+      // Start recording with size limit callback (Whisper API has 25MB limit)
+      audioRecorder.startRecording(async () => {
+        console.log('Recording size limit reached (24MB) - auto-stopping');
+        if (audioRecorder.isRecording()) {
+          const audioData = audioRecorder.stopRecording();
+          await processTranscription(audioData);
+        }
+      });
     }
   },
   // On release
@@ -158,21 +153,16 @@ hotkeyManager.registerToggle(async () => {
     webServer.setStatus('recording');
     systemTray.setStatus('recording');
     
-    // Set 29-second timeout for API mode (Whisper API has 30s limit)
-    const mode = configManager.getWhisperMode();
-    if (mode === 'api') {
-      audioRecorder.startRecording(29000, async () => {
-        console.log('API timeout: Auto-stopping recording at 29 seconds');
-        if (audioRecorder.isRecording()) {
-          isToggleListening = false;
-          hotkeyManager.setToggleListening(false);
-          const audioData = audioRecorder.stopRecording();
-          await processTranscription(audioData);
-        }
-      });
-    } else {
-      audioRecorder.startRecording();
-    }
+    // Start recording with size limit callback (Whisper API has 25MB limit)
+    audioRecorder.startRecording(async () => {
+      console.log('Recording size limit reached (24MB) - auto-stopping');
+      if (audioRecorder.isRecording()) {
+        isToggleListening = false;
+        hotkeyManager.setToggleListening(false);
+        const audioData = audioRecorder.stopRecording();
+        await processTranscription(audioData);
+      }
+    });
   } else {
     console.log('Toggle: Stopped listening');
     const audioData = audioRecorder.stopRecording();
