@@ -113,9 +113,9 @@ All settings can be configured via the web interface at http://localhost:5933:
 
 - [ ] **Cross-platform support** (Linux/macOS):
   - [x] System tray icons - use .png format on non-Windows platforms
-  - [ ] Platform-specific text insertion (replace robotjs Ctrl+V with OS-specific paste commands)
-  - [ ] Platform-specific minimize on startup handling
-  - [ ] Multi-platform packaging configuration
+  - [x] Platform-specific text insertion (Cmd+V on macOS, Ctrl+V on Windows/Linux)
+  - [x] Platform-specific minimize on startup handling (Windows-only, guarded)
+  - [x] Multi-platform packaging configuration (macOS x64/ARM64, Linux x64)
   - [ ] Platform guards for robotjs permissions and compatibility
   - [ ] Test on macOS and Linux environments
   - [ ] Document platform-specific permission requirements

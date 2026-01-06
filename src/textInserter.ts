@@ -101,8 +101,14 @@ export class TextInserter {
       // Small delay to ensure clipboard is ready and modifiers are released
       robot.setKeyboardDelay(50);
       
-      // Paste using Ctrl+V
-      robot.keyTap('v', ['control']);
+      // Paste using platform-specific keyboard shortcut
+      if (process.platform === 'darwin') {
+        // macOS: Cmd+V
+        robot.keyTap('v', ['command']);
+      } else {
+        // Windows/Linux: Ctrl+V
+        robot.keyTap('v', ['control']);
+      }
     } else {
       // Show notification that text is in clipboard
       const previewLength = 100;
