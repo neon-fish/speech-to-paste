@@ -28,13 +28,16 @@ export class SpeechRecogniser {
     const tempFile = path.join(process.cwd(), 'temp_audio.wav');
     
     // Write WAV file
+    console.log('Saving audio data to temporary WAV file...');
     this.saveAsWav(audioData, tempFile);
     
     try {
+      console.log('Sending audio to Whisper API for transcription...');
       const transcription = await this.openai.audio.transcriptions.create({
         file: fs.createReadStream(tempFile),
         model: 'whisper-1',
       });
+      console.log('Transcription received.');
       
       // Cleanup temp file
       fs.unlinkSync(tempFile);
