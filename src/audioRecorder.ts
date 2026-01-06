@@ -20,12 +20,17 @@ export class AudioRecorder {
   startRecording(): Readable {
     console.log('Starting recording...');
     
+    // For Windows, we need to specify the device driver explicitly
+    const isWindows = process.platform === 'win32';
+    
     this.recording = recorder.record({
       sampleRate: 16000,
       channels: 1,
       compress: false,
       threshold: 0,
       silence: '10.0',
+      device: isWindows ? 'waveaudio' : null,
+      recorder: 'sox',
     });
 
     this.audioStream = this.recording.stream();
