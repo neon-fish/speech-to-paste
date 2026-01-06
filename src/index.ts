@@ -16,19 +16,28 @@ const configManager = new ConfigManager();
 const apiKey = configManager.getApiKey() || process.env.OPENAI_API_KEY;
 if (!apiKey) {
   console.error('Error: OpenAI API key not configured');
-  console.error('Please set your API key in config.json or via the web interface at http://localhost:3000');
+  console.error('Please configure your API key via the web interface at http://localhost:3000');
+  console.error('Or set it in config.json next to the executable');
   console.error('You can get an API key from: https://platform.openai.com/api-keys');
   // Don't exit, let the web server start so user can configure it
 }
 
 // Initialize components
 const audioRecorder = new AudioRecorder();
-const speechRecognizer = apiKey ? new SpeechRecogniser(apiKey) : null;
 const textInserter = new TextInserter();
 const hotkeyManager = new HotkeyManager();
 const webServer = new WebServer(3000, configManager);
 
 let isToggleListening = false;
+
+// Get or create speech recognizer with current API key
+function getSpeechRecognizer(): SpeechRecogniser | null {
+  const apiKey = configManager.getApiKey();
+  if (!apiKey || apiKey.trim().length === 0) {
+    return null;
+  }
+  return new SpeechRecogniser(apiKey);
+}
 
 // Push-to-talk handler
 hotkeyManager.registerPushToTalk(
@@ -44,7 +53,8 @@ hotkeyManager.registerPushToTalk(
     if (audioRecorder.isRecording()) {
       const audioData = audioRecorder.stopRecording();
       
-      // Check if we have an API key and speech recognizer
+      // Get speech recognizer with current API key
+      const speechRecognizer = getSpeechRecognizer();
       if (!speechRecognizer) {
         console.error('Cannot transcribe: OpenAI API key not configured');
         webServer.setStatus('idle');
@@ -86,7 +96,8 @@ hotkeyManager.registerToggle(async () => {
     console.log('Toggle: Stopped listening');
     const audioData = audioRecorder.stopRecording();
     
-    // Check if we have an API key and speech recognizer
+    // Get speech recognizer with current API key
+    const speechRecognizer = getSpeechRecognizer();
     if (!speechRecognizer) {
       console.error('Cannot transcribe: OpenAI API key not configured');
       webServer.setStatus('idle');

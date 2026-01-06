@@ -102,7 +102,7 @@ document.getElementById('saveApiKey').addEventListener('click', async () => {
     if (res.ok) {
       document.getElementById('apiKey').value = '';
       await updateConfig();
-      alert('API key saved successfully! You may need to restart the application.');
+      alert('API key saved successfully!');
     } else {
       alert('Failed to save API key');
     }
