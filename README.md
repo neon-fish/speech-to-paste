@@ -129,6 +129,7 @@ All settings can be configured via the web interface at http://localhost:5933:
   - [x] Platform-specific minimize on startup handling (Windows-only, guarded)
   - [x] Multi-platform packaging configuration (macOS x64/ARM64, Linux x64)
   - [ ] Platform guards for robotjs permissions and compatibility
+  - [ ] Replace bundled MPG123 (Windows-only) with cross-platform audio playback solution
   - [ ] Test on macOS and Linux environments
   - [ ] Document platform-specific permission requirements
 - [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
