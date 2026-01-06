@@ -38,24 +38,41 @@ export class AudioRecorder {
     // Read audio frames continuously
     this.recordingInterval = setInterval(async () => {
       if (this.recorder && this.recording) {
-        const frame = await this.recorder.read();
-        this.audioBuffer.push(frame);
+        try {
+          const frame = await this.recorder.read();
+          if (this.recording) { // Double-check we're still recording
+            this.audioBuffer.push(frame);
+          }
+        } catch (error) {
+          // Ignore errors when stopping
+          if (this.recording) {
+            console.error('Error reading audio frame:', error);
+          }
+        }
       }
     }, 10); // Read every 10ms
   }
 
   stopRecording(): Int16Array {
     console.log('Stopping recording...');
+    
+    // Set flag first to stop new reads
     this.recording = false;
     
+    // Clear interval
     if (this.recordingInterval) {
       clearInterval(this.recordingInterval);
       this.recordingInterval = null;
     }
     
+    // Stop and release recorder
     if (this.recorder) {
-      this.recorder.stop();
-      this.recorder.release();
+      try {
+        this.recorder.stop();
+        this.recorder.release();
+      } catch (error) {
+        console.error('Error stopping recorder:', error);
+      }
       this.recorder = null;
     }
     

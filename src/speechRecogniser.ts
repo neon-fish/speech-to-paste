@@ -34,7 +34,7 @@ export class SpeechRecogniser {
     try {
       console.log('Sending audio to Whisper API for transcription...');
       const transcription = await this.openai.audio.transcriptions.create({
-        file: fs.createReadStream(tempFile),
+        file: await this.createFileFromPath(tempFile),
         model: 'whisper-1',
       });
       console.log('Transcription received.');
@@ -50,6 +50,12 @@ export class SpeechRecogniser {
       }
       throw error;
     }
+  }
+
+  private async createFileFromPath(filePath: string): Promise<File> {
+    const buffer = fs.readFileSync(filePath);
+    const blob = new Blob([buffer], { type: 'audio/wav' });
+    return new File([blob], path.basename(filePath), { type: 'audio/wav' });
   }
 
   private saveAsWav(audioData: Int16Array, filePath: string): void {
