@@ -93,7 +93,7 @@ The application is built with modularity in mind. See the source files for alter
 ## TODO / Future Features
 
 - [x] Add listening/stopped listening audio files
-- [ ] Enable/disable audio feedback in web GUI
+- [x] Enable/disable audio feedback in web GUI
 - [ ] Toggle auto-paste (automatically paste vs copy to clipboard only)
 - [ ] Audio input device selection
 - [ ] Whisper language selection (currently auto-detects)
