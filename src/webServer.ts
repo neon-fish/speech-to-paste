@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import * as path from 'path';
 import { ConfigManager } from './config';
+import { DEFAULT_PORT } from './constants';
 
 export interface TranscriptionEntry {
   timestamp: Date;
@@ -20,7 +21,7 @@ export class WebServer {
   private hotkeysEnabled = true;
   private configManager: ConfigManager;
 
-  constructor(port: number = 3000, configManager: ConfigManager) {
+  constructor(port: number = DEFAULT_PORT, configManager: ConfigManager) {
     this.port = port;
     this.configManager = configManager;
     this.app = express();

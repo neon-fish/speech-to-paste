@@ -6,6 +6,7 @@ import { HotkeyManager } from './hotkeyManager';
 import { WebServer } from './webServer';
 import { ConfigManager } from './config';
 import { SystemTray } from './systemTray';
+import { DEFAULT_PORT } from './constants';
 import { exec } from 'child_process';
 
 // Load environment variables (fallback)
@@ -18,7 +19,7 @@ const configManager = new ConfigManager();
 const apiKey = configManager.getApiKey() || process.env.OPENAI_API_KEY;
 if (!apiKey) {
   console.error('Error: OpenAI API key not configured');
-  console.error('Please configure your API key via the web interface at http://localhost:3000');
+  console.error(`Please configure your API key via the web interface at http://localhost:${DEFAULT_PORT}`);
   console.error('Or set it in config.json next to the executable');
   console.error('You can get an API key from: https://platform.openai.com/api-keys');
   // Don't exit, let the web server start so user can configure it
@@ -28,7 +29,7 @@ if (!apiKey) {
 const audioRecorder = new AudioRecorder();
 const textInserter = new TextInserter();
 const hotkeyManager = new HotkeyManager();
-const webServer = new WebServer(3000, configManager);
+const webServer = new WebServer(DEFAULT_PORT, configManager);
 
 let isToggleListening = false;
 
