@@ -23,11 +23,13 @@ export class WebServer {
   private hotkeysEnabled = true;
   private configManager: ConfigManager;
   private audioRecorder: AudioRecorder;
+  private maxHistoryLimit: number;
 
   constructor(port: number = DEFAULT_PORT, configManager: ConfigManager, audioRecorder: AudioRecorder) {
     this.port = port;
     this.configManager = configManager;
     this.audioRecorder = audioRecorder;
+    this.maxHistoryLimit = configManager.getTranscriptionHistoryLimit();
     this.app = express();
     this.app.use(cors());
     this.app.use(express.json());
@@ -78,6 +80,7 @@ export class WebServer {
         audioFeedbackEnabled: this.configManager.getAudioFeedbackEnabled(),
         autoPasteEnabled: this.configManager.getAutoPasteEnabled(),
         audioDeviceIndex: this.configManager.getAudioDeviceIndex(),
+        transcriptionHistoryLimit: this.configManager.getTranscriptionHistoryLimit(),
       });
     });
 
@@ -176,6 +179,25 @@ export class WebServer {
         res.status(500).json({ error: 'Failed to update audio device' });
       }
     });
+
+    // Set transcription history limit
+    this.app.post('/api/config/history-limit', (req, res) => {
+      try {
+        const { limit } = req.body;
+        if (typeof limit !== 'number' || limit < 1 || limit > 1000) {
+          return res.status(400).json({ error: 'limit must be a number between 1 and 1000' });
+        }
+        this.configManager.updateConfig({ transcriptionHistoryLimit: limit });
+        this.maxHistoryLimit = limit;
+        // Trim existing history if needed
+        if (this.transcriptions.length > limit) {
+          this.transcriptions = this.transcriptions.slice(-limit);
+        }
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update history limit' });
+      }
+    });
   }
 
   start(): void {
@@ -196,6 +218,11 @@ export class WebServer {
       text,
       duration,
     });
+    
+    // Trim history to max limit (keep most recent)
+    if (this.transcriptions.length > this.maxHistoryLimit) {
+      this.transcriptions = this.transcriptions.slice(-this.maxHistoryLimit);
+    }
   }
 
   setStatus(status: AppStatus): void {

@@ -37,6 +37,9 @@ async function updateConfig() {
     await updateAudioDevices();
     document.getElementById('audioDevice').value = data.audioDeviceIndex ?? -1;
     
+    // Update history limit
+    document.getElementById('historyLimit').value = data.transcriptionHistoryLimit ?? 50;
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -293,6 +296,34 @@ document.getElementById('saveDevice').addEventListener('click', async () => {
   } catch (err) {
     console.error('Failed to save audio device:', err);
     alert('Error saving audio device');
+  }
+});
+
+// History limit
+document.getElementById('saveHistoryLimit').addEventListener('click', async () => {
+  const limit = parseInt(document.getElementById('historyLimit').value, 10);
+  
+  if (isNaN(limit) || limit < 1 || limit > 1000) {
+    alert('History limit must be between 1 and 1000');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/config/history-limit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert('History limit saved!');
+    } else {
+      alert('Failed to save history limit');
+    }
+  } catch (err) {
+    console.error('Failed to save history limit:', err);
+    alert('Error saving history limit');
   }
 });
 

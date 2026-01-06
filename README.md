@@ -96,10 +96,10 @@ The application is built with modularity in mind. See the source files for alter
 - [x] Enable/disable audio feedback in web GUI
 - [x] Toggle auto-paste (automatically paste vs copy to clipboard only)
 - [ ] Audio input device selection
+- [x] Adjustable transcription history limit
 - [ ] Whisper language selection (currently auto-detects)
 - [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
 - [ ] Customizable hotkeys in settings
-- [ ] Adjustable transcription history limit
 - [ ] Export/import configuration
 - [ ] Whisper API parameters (temperature, prompt, etc.)
 - [ ] Web server port configuration in GUI

@@ -97,6 +97,15 @@
         </div>
         <small>Select which microphone to use for recording</small>
       </div>
+
+      <div class="config-item">
+        <label for="historyLimit">Transcription History Limit:</label>
+        <div class="select-group">
+          <input type="number" id="historyLimit" min="1" max="1000" value="50" style="width: 80px;">
+          <button id="saveHistoryLimit">Save</button>
+        </div>
+        <small>Maximum number of transcriptions to keep (1-1000). Older entries are automatically removed.</small>
+      </div>
     </div>
 
     <div class="transcriptions" id="transcriptions">

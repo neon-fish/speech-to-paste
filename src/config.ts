@@ -9,6 +9,7 @@ export interface Config {
   audioFeedbackEnabled: boolean;
   autoPasteEnabled: boolean;
   audioDeviceIndex: number;
+  transcriptionHistoryLimit: number;
 }
 
 export class ConfigManager {
@@ -43,6 +44,7 @@ export class ConfigManager {
       audioFeedbackEnabled: true,
       autoPasteEnabled: true,
       audioDeviceIndex: -1,
+      transcriptionHistoryLimit: 50,
     };
 
     // Write default config with helpful comments
@@ -59,7 +61,9 @@ export class ConfigManager {
       "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
       "autoPasteEnabled": true,
       "_audioDeviceOptions": "Audio input device index (-1 for default device, use web UI to see available devices)",
-      "audioDeviceIndex": -1
+      "audioDeviceIndex": -1,
+      "_historyLimitOptions": "Maximum number of transcriptions to keep in history (1-1000)",
+      "transcriptionHistoryLimit": 50
     };
 
     try {
@@ -92,6 +96,7 @@ export class ConfigManager {
       "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
       "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
       "_audioDeviceOptions": "Audio input device index (-1 for default device, use web UI to see available devices)",
+      "_historyLimitOptions": "Maximum number of transcriptions to keep in history (1-1000)",
       ...this.config
     };
 
@@ -134,5 +139,10 @@ export class ConfigManager {
 
   getAudioDeviceIndex(): number {
     return this.config.audioDeviceIndex ?? -1; // default to -1 (auto) if not set
+  }
+
+  getTranscriptionHistoryLimit(): number {
+    const limit = this.config.transcriptionHistoryLimit ?? 50;
+    return Math.max(1, Math.min(1000, limit)); // clamp between 1 and 1000
   }
 }
