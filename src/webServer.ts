@@ -81,6 +81,7 @@ export class WebServer {
         autoPasteEnabled: this.configManager.getAutoPasteEnabled(),
         audioDeviceIndex: this.configManager.getAudioDeviceIndex(),
         transcriptionHistoryLimit: this.configManager.getTranscriptionHistoryLimit(),
+        whisperLanguage: this.configManager.getWhisperLanguage(),
       });
     });
 
@@ -196,6 +197,20 @@ export class WebServer {
         res.json({ success: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update history limit' });
+      }
+    });
+
+    // Set Whisper language
+    this.app.post('/api/config/whisper-language', (req, res) => {
+      try {
+        const { language } = req.body;
+        if (typeof language !== 'string') {
+          return res.status(400).json({ error: 'language must be a string' });
+        }
+        this.configManager.updateConfig({ whisperLanguage: language });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update language' });
       }
     });
   }

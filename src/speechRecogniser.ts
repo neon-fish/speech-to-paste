@@ -19,9 +19,15 @@ import { ISpeechRecogniser } from './ISpeechRecogniser';
 
 export class SpeechRecogniser implements ISpeechRecogniser {
   private openai: OpenAI;
+  private language: string = '';
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, language?: string) {
     this.openai = new OpenAI({ apiKey });
+    this.language = language || '';
+  }
+
+  setLanguage(language: string): void {
+    this.language = language;
   }
 
   async recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string> {
@@ -44,10 +50,20 @@ export class SpeechRecogniser implements ISpeechRecogniser {
     
     try {
       console.log('Sending audio to Whisper API for transcription...');
-      const transcription = await this.openai.audio.transcriptions.create({
+      const params: any = {
         file: await this.createFileFromPath(tempFile),
         model: 'whisper-1',
-      });
+      };
+      
+      // Add language if specified (empty = auto-detect)
+      if (this.language) {
+        params.language = this.language;
+        console.log(`Language set to: ${this.language}`);
+      } else {
+        console.log('Language: auto-detect');
+      }
+      
+      const transcription = await this.openai.audio.transcriptions.create(params);
       console.log('Transcription received.');
       
       // Cleanup temp file

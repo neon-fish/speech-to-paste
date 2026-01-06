@@ -40,6 +40,9 @@ async function updateConfig() {
     // Update history limit
     document.getElementById('historyLimit').value = data.transcriptionHistoryLimit ?? 50;
     
+    // Update language selection
+    document.getElementById('whisperLanguage').value = data.whisperLanguage || '';
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -324,6 +327,33 @@ document.getElementById('saveHistoryLimit').addEventListener('click', async () =
   } catch (err) {
     console.error('Failed to save history limit:', err);
     alert('Error saving history limit');
+  }
+});
+
+// Language selection
+document.getElementById('saveLanguage').addEventListener('click', async () => {
+  const language = document.getElementById('whisperLanguage').value;
+  
+  try {
+    const res = await fetch('/api/config/whisper-language', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      if (language) {
+        alert(`Language set to: ${document.getElementById('whisperLanguage').selectedOptions[0].text}`);
+      } else {
+        alert('Language set to: Auto-detect');
+      }
+    } else {
+      alert('Failed to save language');
+    }
+  } catch (err) {
+    console.error('Failed to save language:', err);
+    alert('Error saving language');
   }
 });
 

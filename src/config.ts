@@ -10,6 +10,7 @@ export interface Config {
   autoPasteEnabled: boolean;
   audioDeviceIndex: number;
   transcriptionHistoryLimit: number;
+  whisperLanguage: string;
 }
 
 export class ConfigManager {
@@ -45,6 +46,7 @@ export class ConfigManager {
       autoPasteEnabled: true,
       audioDeviceIndex: -1,
       transcriptionHistoryLimit: 50,
+      whisperLanguage: '',
     };
 
     // Write default config with helpful comments
@@ -63,7 +65,9 @@ export class ConfigManager {
       "_audioDeviceOptions": "Audio input device index (-1 for default device, use web UI to see available devices)",
       "audioDeviceIndex": -1,
       "_historyLimitOptions": "Maximum number of transcriptions to keep in history (1-1000)",
-      "transcriptionHistoryLimit": 50
+      "transcriptionHistoryLimit": 50,
+      "_languageOptions": "Language code for transcription (e.g., 'en', 'es', 'fr') or empty for auto-detect",
+      "whisperLanguage": ""
     };
 
     try {
@@ -97,6 +101,7 @@ export class ConfigManager {
       "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
       "_audioDeviceOptions": "Audio input device index (-1 for default device, use web UI to see available devices)",
       "_historyLimitOptions": "Maximum number of transcriptions to keep in history (1-1000)",
+      "_languageOptions": "Language code for transcription (e.g., 'en', 'es', 'fr') or empty for auto-detect",
       ...this.config
     };
 
@@ -144,5 +149,9 @@ export class ConfigManager {
   getTranscriptionHistoryLimit(): number {
     const limit = this.config.transcriptionHistoryLimit ?? 50;
     return Math.max(1, Math.min(1000, limit)); // clamp between 1 and 1000
+  }
+
+  getWhisperLanguage(): string {
+    return this.config.whisperLanguage || ''; // empty string = auto-detect
   }
 }

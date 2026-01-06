@@ -97,7 +97,7 @@ The application is built with modularity in mind. See the source files for alter
 - [x] Toggle auto-paste (automatically paste vs copy to clipboard only)
 - [ ] Audio input device selection
 - [x] Adjustable transcription history limit
-- [ ] Whisper language selection (currently auto-detects)
+- [x] Whisper language selection (currently auto-detects)
 - [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
 - [ ] Customizable hotkeys in settings
 - [ ] Export/import configuration

@@ -29,10 +29,16 @@ try {
 export class LocalSpeechRecogniser implements ISpeechRecogniser {
   private modelSize: WhisperModelSize;
   private modelPath: string | undefined;
+  private language: string = '';
 
-  constructor(modelSize: WhisperModelSize = 'base', modelPath?: string) {
+  constructor(modelSize: WhisperModelSize = 'base', language?: string, modelPath?: string) {
     this.modelSize = modelSize;
+    this.language = language || '';
     this.modelPath = modelPath;
+  }
+
+  setLanguage(language: string): void {
+    this.language = language;
   }
 
   async recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string> {
@@ -64,12 +70,19 @@ export class LocalSpeechRecogniser implements ISpeechRecogniser {
       
       // Configure whisper options
       const options: any = {
-        modelName: this.modelSize + '.en', // Use English-specific models for better performance
+        modelName: this.language ? `${this.modelSize}` : `${this.modelSize}.en`, // Use language-specific or English model
         audioFile: tempWavFile,
       };
       
       if (this.modelPath) {
         options.modelPath = this.modelPath;
+      }
+      
+      if (this.language) {
+        options.language = this.language;
+        console.log(`Language set to: ${this.language}`);
+      } else {
+        console.log('Using English-specific model');
       }
       
       // Transcribe using whisper-node
