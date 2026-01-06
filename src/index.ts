@@ -134,7 +134,7 @@ hotkeyManager.registerToggle(async () => {
 });
 
 // Start the application
-console.log('Speech-to-text script starting...');
+console.log('Speech-to-Paste starting...');
 console.log('Hotkeys:');
 console.log('  Pause/Break: Push-to-talk (hold to record)');
 console.log('  Shift+Pause/Break: Toggle listening on/off');
