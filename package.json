@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "package": "npm run build && pkg . --compress Brotli"
+    "package": "npm run build && pkg .",
+    "package-release": "npm run build && pkg . --compress Brotli"
   },
   "author": "Ed Johnson (Neon Fish)",
   "license": "UNLICENSED",
