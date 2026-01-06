@@ -3,6 +3,7 @@ import { AudioRecorder } from './audioRecorder';
 import { SpeechRecogniser } from './speechRecogniser';
 import { TextInserter } from './textInserter';
 import { HotkeyManager } from './hotkeyManager';
+import { WebServer } from './webServer';
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +19,7 @@ const audioRecorder = new AudioRecorder();
 const speechRecognizer = new SpeechRecogniser(apiKey);
 const textInserter = new TextInserter();
 const hotkeyManager = new HotkeyManager();
+const webServer = new WebServer(3000);
 
 let isToggleListening = false;
 
@@ -25,7 +27,8 @@ let isToggleListening = false;
 hotkeyManager.registerPushToTalk(
   // On press
   () => {
-    if (!audioRecorder.isRecording()) {
+    if (!audioRecorder.isRecording() && webServer.isHotkeysEnabled()) {
+      webServer.setStatus('recording');
       audioRecorder.startRecording();
     }
   },
@@ -35,15 +38,19 @@ hotkeyManager.registerPushToTalk(
       const audioData = audioRecorder.stopRecording();
       
       try {
+        webServer.setStatus('transcribing');
         console.log('Transcribing audio...');
         const text = await speechRecognizer.recognizeFromAudioData(audioData);
         console.log(`Recognized: "${text}"`);
         
         if (text) {
           textInserter.insertText(text);
+          webServer.addTranscription(text);
         }
+        webServer.setStatus('idle');
       } catch (error) {
         console.error('Error during transcription:', error);
+        webServer.setStatus('idle');
       }
     }
   }
@@ -51,25 +58,34 @@ hotkeyManager.registerPushToTalk(
 
 // Toggle listener handler
 hotkeyManager.registerToggle(async () => {
+  if (!webServer.isHotkeysEnabled()) {
+    return;
+  }
+  
   isToggleListening = !isToggleListening;
   
   if (isToggleListening) {
     console.log('Toggle: Started listening');
+    webServer.setStatus('recording');
     audioRecorder.startRecording();
   } else {
     console.log('Toggle: Stopped listening');
     const audioData = audioRecorder.stopRecording();
     
     try {
+      webServer.setStatus('transcribing');
       console.log('Transcribing audio...');
       const text = await speechRecognizer.recognizeFromAudioData(audioData);
       console.log(`Recognized: "${text}"`);
       
       if (text) {
         textInserter.insertText(text);
+        webServer.addTranscription(text);
       }
+      webServer.setStatus('idle');
     } catch (error) {
       console.error('Error during transcription:', error);
+      webServer.setStatus('idle');
     }
   }
 });
@@ -82,11 +98,13 @@ console.log('  Shift+Pause/Break: Toggle listening on/off');
 console.log('\nPress Ctrl+C to exit');
 
 hotkeyManager.start();
+webServer.start();
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
   console.log('\nShutting down...');
   hotkeyManager.stop();
+  webServer.stop();
   if (audioRecorder.isRecording()) {
     audioRecorder.stopRecording();
   }
