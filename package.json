@@ -1,0 +1,11 @@
+{
+  "name": "speech-script-test",
+  "version": "0.1.0",
+  "description": "Speech recognition script test",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ed Johnson (Neon Fish)",
+  "license": "UNLICENSED"
+}
