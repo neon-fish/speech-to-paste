@@ -8,14 +8,18 @@ A Windows desktop application that captures audio from your microphone, transcri
   - Gray icon: Idle
   - Red icon: Recording
   - Orange icon: Transcribing
-- **Global Hotkeys**: Works across all applications
-  - `Pause/Break`: Push-to-talk (hold to record, release to transcribe)
-  - `Shift+Pause/Break`: Toggle continuous listening mode (on/off)
-- **Web Interface**: Configure and monitor the application at http://localhost:5933
-  - Set your OpenAI API key
-  - View transcription history
+- **Customizable Global Hotkeys**: Works across all applications (configurable via web interface)
+  - Default: `Pause/Break` for push-to-talk (hold to record, release to transcribe)
+  - Default: `Shift+Pause/Break` for toggle continuous listening mode (on/off)
+- **Web Interface**: Configure and monitor the application at http://localhost:5933 (port configurable)
+  - OpenAI API key and Whisper settings (language, temperature, prompt)
+  - Audio device selection and feedback settings
+  - Customizable hotkeys (manual key code entry with reference table)
+  - Export/import configuration
+  - Transcription history with adjustable limit
   - Toggle hotkeys on/off
-  - Monitor application status
+  - Minimize to tray on startup option
+- **Recording Limits**: Automatically stops at 25MB (~13 minutes) to comply with Whisper API limits
 - **Modular Design**: Swappable components for audio recording, speech recognition, text insertion, and hotkey management
 
 ## Setup
@@ -50,9 +54,10 @@ A Windows desktop application that captures audio from your microphone, transcri
 ## Usage
 
 1. The application starts in the system tray (look for the gray circular icon)
-2. Press and hold `Pause/Break` to record audio
+2. Press and hold your configured push-to-talk hotkey (default: `Pause/Break`) to record audio
 3. Release to automatically transcribe and paste the text
-4. Or press `Shift+Pause/Break` to toggle continuous listening mode
+4. Or use your toggle hotkey (default: `Shift+Pause/Break`) to enable continuous listening mode
+5. Configure settings, customize hotkeys, and view history at http://localhost:5933
 
 ## Packaging
 
@@ -88,19 +93,21 @@ The application is built with modularity in mind. See the source files for alter
 - Requires Visual C++ build tools for robotjs compilation
 - Cloud API calls add latency and cost per transcription
 - Cannot verify if a text input field is actually focused before pasting
+- Recording limited to 25MB (~13 minutes at 16kHz) per the Whisper API constraints
+- Hotkey customization requires manual entry of key codes (use the reference table in web interface)
 - ~~**Local Whisper mode** requires native compilation (not currently functional on Windows - see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))~~ - requires testing
+
+## Configuration Options
+
+All settings can be configured via the web interface at http://localhost:5933:
+
+- **API Settings**: OpenAI API key, language, temperature (0-1), and prompt text
+- **Audio**: Device selection and feedback sounds (enable/disable)
+- **Behavior**: Auto-paste toggle, transcription history limit, minimize on startup
+- **Hotkeys**: Customizable key codes with modifiers (Shift, Ctrl, Alt)
+- **Server**: Configurable web server port (requires restart)
+- **Backup**: Export/import configuration as JSON
 
 ## TODO / Future Features
 
-- [x] Add listening/stopped listening audio files
-- [x] Enable/disable audio feedback in web GUI
-- [x] Toggle auto-paste (automatically paste vs copy to clipboard only)
-- [x] Audio input device selection
-- [x] Adjustable transcription history limit
-- [x] Whisper language selection (currently auto-detects)
-- [x] Whisper API parameters (temperature, prompt, etc.)
-- [x] Customizable hotkeys in settings
-- [x] Export/import configuration
-- [x] Web server port configuration in GUI
-- [x] Minimize to tray on startup option
 - [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
