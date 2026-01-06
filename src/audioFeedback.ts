@@ -1,3 +1,4 @@
+import { existsSync } from 'fs';
 import * as path from 'path';
 
 /**
@@ -23,7 +24,7 @@ export class AudioFeedback {
   private enabled: boolean = true;
 
   constructor() {
-    this.soundsDir = path.join(__dirname, '..', 'sounds');
+    this.soundsDir = path.join(__dirname, '..', 'assets/sounds');
   }
 
   /**
@@ -41,10 +42,10 @@ export class AudioFeedback {
     if (!this.enabled) return;
     
     // TODO: Implement sound playback when sound files are added
-    // const startSound = path.join(this.soundsDir, 'start.wav');
-    // if (fs.existsSync(startSound)) {
-    //   // Play sound using chosen audio library
-    // }
+    const startSound = path.join(this.soundsDir, 'start.mp3');
+    if (existsSync(startSound)) {
+      // Play sound using chosen audio library
+    }
     
     console.log('[AudioFeedback] Start sound hook triggered');
   }
@@ -57,10 +58,10 @@ export class AudioFeedback {
     if (!this.enabled) return;
     
     // TODO: Implement sound playback when sound files are added
-    // const stopSound = path.join(this.soundsDir, 'stop.wav');
-    // if (fs.existsSync(stopSound)) {
-    //   // Play sound using chosen audio library
-    // }
+    const stopSound = path.join(this.soundsDir, 'stop.mp3');
+    if (existsSync(stopSound)) {
+      // Play sound using chosen audio library
+    }
     
     console.log('[AudioFeedback] Stop sound hook triggered');
   }

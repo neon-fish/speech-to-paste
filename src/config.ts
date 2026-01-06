@@ -6,6 +6,7 @@ export interface Config {
   openaiApiKey: string;
   whisperMode: WhisperMode;
   localWhisperModel: WhisperModelSize;
+  audioFeedbackEnabled: boolean;
 }
 
 export class ConfigManager {
@@ -37,6 +38,7 @@ export class ConfigManager {
       openaiApiKey: '',
       whisperMode: 'api',
       localWhisperModel: 'base',
+      audioFeedbackEnabled: true,
     };
 
     // Write default config with helpful comments
@@ -47,7 +49,9 @@ export class ConfigManager {
       "_whisperModeOptions": "Use 'api' for OpenAI Whisper API or 'local' for offline transcription",
       "whisperMode": "api",
       "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
-      "localWhisperModel": "base"
+      "localWhisperModel": "base",
+      "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
+      "audioFeedbackEnabled": true
     };
 
     try {
@@ -77,6 +81,7 @@ export class ConfigManager {
       "_instructions": "Get your OpenAI API key from https://platform.openai.com/api-keys",
       "_whisperModeOptions": "Use 'api' for OpenAI Whisper API or 'local' for offline transcription",
       "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
+      "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
       ...this.config
     };
 
@@ -107,5 +112,9 @@ export class ConfigManager {
 
   getLocalWhisperModel(): WhisperModelSize {
     return this.config.localWhisperModel || 'base';
+  }
+
+  getAudioFeedbackEnabled(): boolean {
+    return this.config.audioFeedbackEnabled !== false; // default to true if not set
   }
 }

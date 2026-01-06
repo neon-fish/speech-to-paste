@@ -27,6 +27,9 @@ async function updateConfig() {
     // Update model selection
     document.getElementById('whisperModel').value = data.localWhisperModel || 'base';
     
+    // Update audio feedback checkbox
+    document.getElementById('audioFeedbackEnabled').checked = data.audioFeedbackEnabled !== false;
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -194,6 +197,27 @@ document.getElementById('saveModel').addEventListener('click', async () => {
   } catch (err) {
     console.error('Failed to save model size:', err);
     alert('Error saving model size');
+  }
+});
+
+// Audio feedback toggle
+document.getElementById('audioFeedbackEnabled').addEventListener('change', async (e) => {
+  try {
+    const res = await fetch('/api/config/audio-feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: e.target.checked })
+    });
+    if (res.ok) {
+      console.log('Audio feedback updated:', e.target.checked);
+    } else {
+      alert('Failed to update audio feedback setting');
+      e.target.checked = !e.target.checked; // revert
+    }
+  } catch (err) {
+    console.error('Failed to update audio feedback:', err);
+    alert('Error updating audio feedback setting');
+    e.target.checked = !e.target.checked; // revert
   }
 });
 

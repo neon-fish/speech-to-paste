@@ -7,7 +7,8 @@ let whisper: any = null;
 let whisperInitError: string | null = null;
 
 try {
-  whisper = require('whisper-node');
+  // Commented out for now as whisper-node is not yet set up
+  // whisper = require('whisper-node');
 } catch (error: any) {
   whisperInitError = `Failed to load whisper-node: ${error.message}`;
   console.error('[LocalWhisper] Warning:', whisperInitError);

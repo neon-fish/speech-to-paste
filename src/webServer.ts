@@ -72,6 +72,7 @@ export class WebServer {
         localWhisperModel: this.configManager.getLocalWhisperModel(),
         localWhisperAvailable: LocalSpeechRecogniser.isAvailable(),
         localWhisperError: LocalSpeechRecogniser.getInitError(),
+        audioFeedbackEnabled: this.configManager.getAudioFeedbackEnabled(),
       });
     });
 
@@ -112,6 +113,20 @@ export class WebServer {
           return res.status(400).json({ error: 'Invalid model. Must be one of: tiny, base, small, medium, large' });
         }
         this.configManager.updateConfig({ localWhisperModel: model });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update config' });
+      }
+    });
+
+    // Toggle audio feedback
+    this.app.post('/api/config/audio-feedback', (req, res) => {
+      try {
+        const { enabled } = req.body;
+        if (typeof enabled !== 'boolean') {
+          return res.status(400).json({ error: 'enabled must be a boolean' });
+        }
+        this.configManager.updateConfig({ audioFeedbackEnabled: enabled });
         res.json({ success: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update config' });

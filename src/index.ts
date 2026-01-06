@@ -35,6 +35,9 @@ const hotkeyManager = new HotkeyManager();
 const webServer = new WebServer(DEFAULT_PORT, configManager);
 const audioFeedback = new AudioFeedback();
 
+// Apply audio feedback setting from config
+audioFeedback.setEnabled(configManager.getAudioFeedbackEnabled());
+
 let isToggleListening = false;
 
 // Get or create speech recognizer based on configured mode
