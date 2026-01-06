@@ -1,6 +1,8 @@
 import { existsSync } from 'fs';
 import * as path from 'path';
 
+const player = require('play-sound')({ players: ['mplayer', 'mpg123', 'mpg321', 'mpg123', 'afplay', 'cmdmp3', 'cvlc', 'powershell'] });
+
 /**
  * Audio feedback player for user interactions
  * Plays sound effects for recording start/stop events
@@ -8,15 +10,6 @@ import * as path from 'path';
  * Sound files should be placed in the 'sounds' directory:
  * - start.wav or start.mp3: Played when recording starts
  * - stop.wav or stop.mp3: Played when recording stops
- * 
- * Current: Hooks are in place but sounds are not yet implemented
- * To implement later: Add sound files and uncomment playback code
- * 
- * Alternative libraries:
- * - play-sound: Simple cross-platform audio playback
- * - node-speaker + node-wav: Lower-level but more control
- * - sound-play: Minimal dependencies
- * - speaker: Stream-based audio playback
  */
 
 export class AudioFeedback {
@@ -41,13 +34,14 @@ export class AudioFeedback {
   playStartSound(): void {
     if (!this.enabled) return;
     
-    // TODO: Implement sound playback when sound files are added
     const startSound = path.join(this.soundsDir, 'start.mp3');
     if (existsSync(startSound)) {
-      // Play sound using chosen audio library
+      player.play(startSound, (err: any) => {
+        if (err) console.error('[AudioFeedback] Error playing start sound:', err.message);
+      });
+    } else {
+      console.log('[AudioFeedback] Start sound file not found:', startSound);
     }
-    
-    console.log('[AudioFeedback] Start sound hook triggered');
   }
 
   /**
@@ -57,12 +51,13 @@ export class AudioFeedback {
   playStopSound(): void {
     if (!this.enabled) return;
     
-    // TODO: Implement sound playback when sound files are added
     const stopSound = path.join(this.soundsDir, 'stop.mp3');
     if (existsSync(stopSound)) {
-      // Play sound using chosen audio library
+      player.play(stopSound, (err: any) => {
+        if (err) console.error('[AudioFeedback] Error playing stop sound:', err.message);
+      });
+    } else {
+      console.log('[AudioFeedback] Stop sound file not found:', stopSound);
     }
-    
-    console.log('[AudioFeedback] Stop sound hook triggered');
   }
 }

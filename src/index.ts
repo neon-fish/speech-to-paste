@@ -87,7 +87,6 @@ hotkeyManager.registerPushToTalk(
   // On release
   async () => {
     if (audioRecorder.isRecording()) {
-      audioFeedback.playStopSound();
       const audioData = audioRecorder.stopRecording();
       
       // Get speech recognizer with current API key
@@ -108,6 +107,7 @@ hotkeyManager.registerPushToTalk(
         if (text) {
           textInserter.insertText(text);
           webServer.addTranscription(text);
+          audioFeedback.playStopSound();
         }
         webServer.setStatus('idle');
         systemTray.setStatus('idle');
@@ -137,7 +137,6 @@ hotkeyManager.registerToggle(async () => {
     audioRecorder.startRecording();
   } else {
     console.log('Toggle: Stopped listening');
-    audioFeedback.playStopSound();
     const audioData = audioRecorder.stopRecording();
     
     // Get speech recognizer with current API key
@@ -158,6 +157,7 @@ hotkeyManager.registerToggle(async () => {
       if (text) {
         textInserter.insertText(text);
         webServer.addTranscription(text);
+        audioFeedback.playStopSound();
       }
       webServer.setStatus('idle');
       systemTray.setStatus('idle');
