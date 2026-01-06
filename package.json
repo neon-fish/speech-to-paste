@@ -15,7 +15,7 @@
     "openai": "^4.20.1",
     "robotjs": "^0.6.0",
     "uiohook-napi": "^1.5.3",
-    "node-record-lpcm16": "^1.0.1"
+    "@picovoice/pvrecorder-node": "^1.2.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

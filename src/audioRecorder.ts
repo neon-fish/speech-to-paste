@@ -1,55 +1,110 @@
-// @ts-ignore - no type definitions available
-import * as recorder from 'node-record-lpcm16';
-import { Readable } from 'stream';
+import { PvRecorder } from '@picovoice/pvrecorder-node';
+import { Readable, PassThrough } from 'stream';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Audio recording module
  * 
- * Current: node-record-lpcm16
+ * Current: @picovoice/pvrecorder-node (cross-platform, no external deps)
  * Alternatives:
- * - mic (npm package)
- * - node-microphone (cross-platform)
+ * - node-record-lpcm16 (requires SoX)
+ * - mic (requires SoX or native)
+ * - node-microphone
  * - sox-audio (requires SoX installation)
  * - portaudio bindings (node-portaudio)
  */
 
 export class AudioRecorder {
-  private recording: any = null;
-  private audioStream: Readable | null = null;
+  private recorder: PvRecorder | null = null;
+  private audioBuffer: Int16Array[] = [];
+  private recording = false;
+  private recordingInterval: NodeJS.Timeout | null = null;
 
-  startRecording(): Readable {
+  startRecording(): void {
     console.log('Starting recording...');
     
-    // For Windows, we need to specify the device driver explicitly
-    const isWindows = process.platform === 'win32';
+    // Get default audio device
+    const devices = PvRecorder.getAvailableDevices();
+    console.log('Available audio devices:', devices);
     
-    this.recording = recorder.record({
-      sampleRate: 16000,
-      channels: 1,
-      compress: false,
-      threshold: 0,
-      silence: '10.0',
-      device: isWindows ? 'waveaudio' : null,
-      recorder: 'sox',
-    });
-
-    this.audioStream = this.recording.stream();
-    if (!this.audioStream) {
-      throw new Error('Failed to start audio stream');
-    }
-    return this.audioStream;
+    // Create recorder with 16kHz sample rate, 512 frame length
+    this.recorder = new PvRecorder(512, -1); // -1 = default device
+    this.recorder.start();
+    
+    this.recording = true;
+    this.audioBuffer = [];
+    
+    // Read audio frames continuously
+    this.recordingInterval = setInterval(async () => {
+      if (this.recorder && this.recording) {
+        const frame = await this.recorder.read();
+        this.audioBuffer.push(frame);
+      }
+    }, 10); // Read every 10ms
   }
 
-  stopRecording(): void {
+  stopRecording(): Int16Array {
     console.log('Stopping recording...');
-    if (this.recording) {
-      this.recording.stop();
-      this.recording = null;
-      this.audioStream = null;
+    this.recording = false;
+    
+    if (this.recordingInterval) {
+      clearInterval(this.recordingInterval);
+      this.recordingInterval = null;
     }
+    
+    if (this.recorder) {
+      this.recorder.stop();
+      this.recorder.release();
+      this.recorder = null;
+    }
+    
+    // Combine all buffers into one
+    const totalLength = this.audioBuffer.reduce((sum, buf) => sum + buf.length, 0);
+    const combined = new Int16Array(totalLength);
+    let offset = 0;
+    for (const buf of this.audioBuffer) {
+      combined.set(buf, offset);
+      offset += buf.length;
+    }
+    
+    this.audioBuffer = [];
+    return combined;
   }
 
   isRecording(): boolean {
-    return this.recording !== null;
+    return this.recording;
+  }
+
+  // Helper to save audio data as WAV file
+  saveAsWav(audioData: Int16Array, filePath: string): void {
+    const sampleRate = 16000;
+    const numChannels = 1;
+    const bitsPerSample = 16;
+    
+    const dataSize = audioData.length * 2; // 2 bytes per sample
+    const buffer = Buffer.alloc(44 + dataSize);
+    
+    // WAV header
+    buffer.write('RIFF', 0);
+    buffer.writeUInt32LE(36 + dataSize, 4);
+    buffer.write('WAVE', 8);
+    buffer.write('fmt ', 12);
+    buffer.writeUInt32LE(16, 16); // fmt chunk size
+    buffer.writeUInt16LE(1, 20); // audio format (PCM)
+    buffer.writeUInt16LE(numChannels, 22);
+    buffer.writeUInt32LE(sampleRate, 24);
+    buffer.writeUInt32LE(sampleRate * numChannels * bitsPerSample / 8, 28); // byte rate
+    buffer.writeUInt16LE(numChannels * bitsPerSample / 8, 32); // block align
+    buffer.writeUInt16LE(bitsPerSample, 34);
+    buffer.write('data', 36);
+    buffer.writeUInt32LE(dataSize, 40);
+    
+    // Audio data
+    for (let i = 0; i < audioData.length; i++) {
+      buffer.writeInt16LE(audioData[i], 44 + i * 2);
+    }
+    
+    fs.writeFileSync(filePath, buffer);
   }
 }

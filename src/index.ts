@@ -32,11 +32,11 @@ hotkeyManager.registerPushToTalk(
   // On release
   async () => {
     if (audioRecorder.isRecording()) {
-      const stream = audioRecorder.stopRecording();
+      const audioData = audioRecorder.stopRecording();
       
       try {
         console.log('Transcribing audio...');
-        const text = await speechRecognizer.recognizeFromStream(stream!);
+        const text = await speechRecognizer.recognizeFromAudioData(audioData);
         console.log(`Recognized: "${text}"`);
         
         if (text) {
@@ -58,11 +58,11 @@ hotkeyManager.registerToggle(async () => {
     audioRecorder.startRecording();
   } else {
     console.log('Toggle: Stopped listening');
-    const stream = audioRecorder.stopRecording();
+    const audioData = audioRecorder.stopRecording();
     
     try {
       console.log('Transcribing audio...');
-      const text = await speechRecognizer.recognizeFromStream(stream!);
+      const text = await speechRecognizer.recognizeFromAudioData(audioData);
       console.log(`Recognized: "${text}"`);
       
       if (text) {
