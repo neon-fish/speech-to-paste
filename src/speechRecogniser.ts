@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { Readable } from 'stream';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ISpeechRecogniser } from './ISpeechRecogniser';
 
 /**
  * Speech recognition module
@@ -16,20 +17,30 @@ import * as path from 'path';
  * - Vosk (offline, lightweight)
  */
 
-export class SpeechRecogniser {
+export class SpeechRecogniser implements ISpeechRecogniser {
   private openai: OpenAI;
 
   constructor(apiKey: string) {
     this.openai = new OpenAI({ apiKey });
   }
 
-  async recognizeFromAudioData(audioData: Int16Array): Promise<string> {
+  async recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string> {
+    // Convert Buffer to Int16Array if needed
+    let audioArray: Int16Array;
+    if (audioData instanceof Buffer) {
+      audioArray = new Int16Array(audioData.buffer, audioData.byteOffset, audioData.byteLength / 2);
+    } else if (audioData instanceof Int16Array) {
+      audioArray = audioData;
+    } else {
+      throw new Error('Invalid audio data type');
+    }
+    
     // Whisper API requires a file, so we save to temp WAV file
     const tempFile = path.join(process.cwd(), 'temp_audio.wav');
     
     // Write WAV file
     console.log('Saving audio data to temporary WAV file...');
-    this.saveAsWav(audioData, tempFile);
+    this.saveAsWav(audioArray, tempFile);
     
     try {
       console.log('Sending audio to Whisper API for transcription...');

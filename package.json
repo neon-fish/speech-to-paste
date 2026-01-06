@@ -21,7 +21,8 @@
     "openai": "^4.20.1",
     "robotjs": "^0.6.0",
     "systray2": "^2.0.3",
-    "uiohook-napi": "^1.5.3"
+    "uiohook-napi": "^1.5.3",
+    "whisper-node": "^1.1.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -38,7 +39,8 @@
       "icons/**/*",
       "node_modules/@picovoice/pvrecorder-node/**/*",
       "node_modules/robotjs/**/*",
-      "node_modules/uiohook-napi/**/*"
+      "node_modules/uiohook-napi/**/*",
+      "node_modules/whisper-node/**/*"
     ],
     "outputPath": "bin",
     "targets": [

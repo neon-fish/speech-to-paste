@@ -67,6 +67,8 @@ export class WebServer {
       res.json({
         hasApiKey: this.configManager.hasValidApiKey(),
         apiKeyPreview: apiKey ? apiKey.substring(0, 8) + '...' : '',
+        whisperMode: this.configManager.getWhisperMode(),
+        localWhisperModel: this.configManager.getLocalWhisperModel(),
       });
     });
 
@@ -78,6 +80,35 @@ export class WebServer {
           return res.status(400).json({ error: 'API key is required' });
         }
         this.configManager.updateConfig({ openaiApiKey: apiKey });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update config' });
+      }
+    });
+
+    // Update Whisper mode
+    this.app.post('/api/config/whisper-mode', (req, res) => {
+      try {
+        const { mode } = req.body;
+        if (!mode || (mode !== 'api' && mode !== 'local')) {
+          return res.status(400).json({ error: 'Invalid mode. Must be "api" or "local"' });
+        }
+        this.configManager.updateConfig({ whisperMode: mode });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update config' });
+      }
+    });
+
+    // Update local Whisper model size
+    this.app.post('/api/config/whisper-model', (req, res) => {
+      try {
+        const { model } = req.body;
+        const validModels = ['tiny', 'base', 'small', 'medium', 'large'];
+        if (!model || !validModels.includes(model)) {
+          return res.status(400).json({ error: 'Invalid model. Must be one of: tiny, base, small, medium, large' });
+        }
+        this.configManager.updateConfig({ localWhisperModel: model });
         res.json({ success: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update config' });

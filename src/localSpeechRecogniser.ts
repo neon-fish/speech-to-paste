@@ -1,0 +1,149 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import { ISpeechRecogniser, WhisperModelSize } from './ISpeechRecogniser';
+
+const whisper = require('whisper-node');
+
+/**
+ * Local Whisper speech recognition using whisper.cpp
+ * Provides offline transcription without API costs
+ * 
+ * Model sizes and performance (approximate):
+ * - tiny: ~75MB, ~1s for 30s audio (fast but less accurate)
+ * - base: ~140MB, ~3s for 30s audio (good balance) [DEFAULT]
+ * - small: ~460MB, ~8s for 30s audio (better accuracy)
+ * - medium: ~1.5GB, ~20s for 30s audio (high accuracy)
+ * - large: ~3GB, ~40s for 30s audio (highest accuracy)
+ */
+
+export class LocalSpeechRecogniser implements ISpeechRecogniser {
+  private modelSize: WhisperModelSize;
+  private modelPath: string | undefined;
+
+  constructor(modelSize: WhisperModelSize = 'base', modelPath?: string) {
+    this.modelSize = modelSize;
+    this.modelPath = modelPath;
+  }
+
+  async recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string> {
+    const tempWavFile = path.join(os.tmpdir(), `whisper_${Date.now()}.wav`);
+    
+    try {
+      // Convert Int16Array to WAV file if needed
+      let wavBuffer: Buffer;
+      if (audioData instanceof Int16Array) {
+        wavBuffer = this.int16ArrayToWav(audioData);
+      } else {
+        wavBuffer = audioData;
+      }
+      
+      // Write WAV buffer to temp file
+      fs.writeFileSync(tempWavFile, wavBuffer);
+      
+      console.log(`Transcribing with local Whisper (${this.modelSize} model)...`);
+      
+      // Configure whisper options
+      const options: any = {
+        modelName: this.modelSize + '.en', // Use English-specific models for better performance
+        audioFile: tempWavFile,
+      };
+      
+      if (this.modelPath) {
+        options.modelPath = this.modelPath;
+      }
+      
+      // Transcribe using whisper-node
+      const transcript = await whisper(options);
+      
+      // Cleanup temp file
+      fs.unlinkSync(tempWavFile);
+      
+      // whisper-node returns an array of segments, extract just the text
+      if (Array.isArray(transcript) && transcript.length > 0) {
+        return transcript.map((segment: any) => segment.speech).join(' ').trim();
+      }
+      
+      return '';
+    } catch (error) {
+      // Cleanup on error
+      if (fs.existsSync(tempWavFile)) {
+        fs.unlinkSync(tempWavFile);
+      }
+      
+      console.error('Error during local transcription:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the estimated model file size
+   */
+  static getModelSize(modelSize: WhisperModelSize): string {
+    const sizes: Record<WhisperModelSize, string> = {
+      tiny: '~75MB',
+      base: '~140MB',
+      small: '~460MB',
+      medium: '~1.5GB',
+      large: '~3GB',
+    };
+    return sizes[modelSize];
+  }
+
+  /**
+   * Check if a model is downloaded and available
+   */
+  static async isModelAvailable(modelSize: WhisperModelSize): Promise<boolean> {
+    try {
+      // whisper-node will download models to ~/.whisper/ by default
+      const homeDir = os.homedir();
+      const modelDir = path.join(homeDir, '.whisper');
+      const modelFile = path.join(modelDir, `ggml-${modelSize}.en.bin`);
+      
+      return fs.existsSync(modelFile);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Convert Int16Array PCM audio to WAV format Buffer
+   */
+  private int16ArrayToWav(audioData: Int16Array): Buffer {
+    const sampleRate = 16000; // PvRecorder uses 16kHz
+    const numChannels = 1; // Mono
+    const bitsPerSample = 16;
+    
+    const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+    const blockAlign = numChannels * (bitsPerSample / 8);
+    const dataSize = audioData.length * 2; // 2 bytes per sample
+    
+    // Create WAV header
+    const header = Buffer.alloc(44);
+    
+    // "RIFF" chunk descriptor
+    header.write('RIFF', 0);
+    header.writeUInt32LE(36 + dataSize, 4); // File size - 8
+    header.write('WAVE', 8);
+    
+    // "fmt " sub-chunk
+    header.write('fmt ', 12);
+    header.writeUInt32LE(16, 16); // Subchunk size
+    header.writeUInt16LE(1, 20); // Audio format (1 = PCM)
+    header.writeUInt16LE(numChannels, 22);
+    header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(byteRate, 28);
+    header.writeUInt16LE(blockAlign, 32);
+    header.writeUInt16LE(bitsPerSample, 34);
+    
+    // "data" sub-chunk
+    header.write('data', 36);
+    header.writeUInt32LE(dataSize, 40);
+    
+    // Convert Int16Array to Buffer
+    const audioBuffer = Buffer.from(audioData.buffer, audioData.byteOffset, audioData.byteLength);
+    
+    // Combine header and audio data
+    return Buffer.concat([header, audioBuffer]);
+  }
+}

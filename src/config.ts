@@ -1,8 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { WhisperMode, WhisperModelSize } from './ISpeechRecogniser';
 
 export interface Config {
   openaiApiKey: string;
+  whisperMode: WhisperMode;
+  localWhisperModel: WhisperModelSize;
 }
 
 export class ConfigManager {
@@ -32,13 +35,19 @@ export class ConfigManager {
   private createDefaultConfig(): Config {
     const defaultConfig: Config = {
       openaiApiKey: '',
+      whisperMode: 'api',
+      localWhisperModel: 'base',
     };
 
     // Write default config with helpful comments
     const configWithComments = {
       "_comment": "Speech-to-Text Configuration",
       "_instructions": "Get your OpenAI API key from https://platform.openai.com/api-keys",
-      "openaiApiKey": ""
+      "openaiApiKey": "",
+      "_whisperModeOptions": "Use 'api' for OpenAI Whisper API or 'local' for offline transcription",
+      "whisperMode": "api",
+      "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
+      "localWhisperModel": "base"
     };
 
     try {
@@ -66,6 +75,8 @@ export class ConfigManager {
     const configWithComments = {
       "_comment": "Speech-to-Text Configuration",
       "_instructions": "Get your OpenAI API key from https://platform.openai.com/api-keys",
+      "_whisperModeOptions": "Use 'api' for OpenAI Whisper API or 'local' for offline transcription",
+      "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
       ...this.config
     };
 
@@ -88,5 +99,13 @@ export class ConfigManager {
 
   hasValidApiKey(): boolean {
     return !!this.config.openaiApiKey && this.config.openaiApiKey.trim().length > 0;
+  }
+
+  getWhisperMode(): WhisperMode {
+    return this.config.whisperMode || 'api';
+  }
+
+  getLocalWhisperModel(): WhisperModelSize {
+    return this.config.localWhisperModel || 'base';
   }
 }

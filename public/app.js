@@ -5,6 +5,7 @@ async function updateConfig() {
     const res = await fetch('/api/config');
     const data = await res.json();
     
+    // Update API key status
     const statusSpan = document.getElementById('apiKeyStatus');
     if (data.hasApiKey) {
       statusSpan.textContent = `✓ Configured (${data.apiKeyPreview})`;
@@ -13,6 +14,18 @@ async function updateConfig() {
       statusSpan.textContent = '⚠ Not configured';
       statusSpan.className = 'error';
     }
+
+    // Update Whisper mode radio buttons
+    const mode = data.whisperMode || 'api';
+    document.getElementById('modeApi').checked = (mode === 'api');
+    document.getElementById('modeLocal').checked = (mode === 'local');
+    
+    // Show/hide relevant sections based on mode
+    document.getElementById('apiKeySection').style.display = (mode === 'api') ? 'block' : 'none';
+    document.getElementById('modelSection').style.display = (mode === 'local') ? 'block' : 'none';
+    
+    // Update model selection
+    document.getElementById('whisperModel').value = data.localWhisperModel || 'base';
   } catch (err) {
     console.error('Failed to update config:', err);
   }
@@ -109,6 +122,64 @@ document.getElementById('saveApiKey').addEventListener('click', async () => {
   } catch (err) {
     console.error('Failed to save API key:', err);
     alert('Error saving API key');
+  }
+});
+
+// Whisper mode change handlers
+document.getElementById('modeApi').addEventListener('change', async (e) => {
+  if (e.target.checked) {
+    try {
+      const res = await fetch('/api/config/whisper-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'api' })
+      });
+      if (res.ok) {
+        await updateConfig();
+      }
+    } catch (err) {
+      console.error('Failed to update whisper mode:', err);
+    }
+  }
+});
+
+document.getElementById('modeLocal').addEventListener('change', async (e) => {
+  if (e.target.checked) {
+    try {
+      const res = await fetch('/api/config/whisper-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'local' })
+      });
+      if (res.ok) {
+        await updateConfig();
+        alert('Local mode enabled. Model will download on first use.');
+      }
+    } catch (err) {
+      console.error('Failed to update whisper mode:', err);
+    }
+  }
+});
+
+document.getElementById('saveModel').addEventListener('click', async () => {
+  const model = document.getElementById('whisperModel').value;
+  
+  try {
+    const res = await fetch('/api/config/whisper-model', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert('Model size saved! Model will download on first use if not already available.');
+    } else {
+      alert('Failed to save model size');
+    }
+  } catch (err) {
+    console.error('Failed to save model size:', err);
+    alert('Error saving model size');
   }
 });
 

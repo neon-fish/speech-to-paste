@@ -25,7 +25,23 @@
 
     <div class="config-section">
       <h2>Configuration</h2>
+      
       <div class="config-item">
+        <label>Whisper Mode:</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="whisperMode" value="api" id="modeApi">
+            <span>OpenAI API (Cloud)</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="whisperMode" value="local" id="modeLocal">
+            <span>Local (Offline)</span>
+          </label>
+        </div>
+        <small>Choose between cloud API (requires key & internet) or local processing (no costs)</small>
+      </div>
+
+      <div class="config-item" id="apiKeySection">
         <label for="apiKey">OpenAI API Key:</label>
         <div class="api-key-input">
           <input type="password" id="apiKey" placeholder="sk-...">
@@ -33,6 +49,21 @@
           <span id="apiKeyStatus"></span>
         </div>
         <small>Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></small>
+      </div>
+
+      <div class="config-item" id="modelSection" style="display: none;">
+        <label for="whisperModel">Local Model Size:</label>
+        <div class="select-group">
+          <select id="whisperModel">
+            <option value="tiny">Tiny (~75MB, fastest)</option>
+            <option value="base">Base (~140MB, balanced)</option>
+            <option value="small">Small (~460MB, accurate)</option>
+            <option value="medium">Medium (~1.5GB, very accurate)</option>
+            <option value="large">Large (~3GB, most accurate)</option>
+          </select>
+          <button id="saveModel">Save</button>
+        </div>
+        <small>Larger models are more accurate but slower. Model will download on first use.</small>
       </div>
     </div>
 

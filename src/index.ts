@@ -1,6 +1,8 @@
 import * as dotenv from 'dotenv';
 import { AudioRecorder } from './audioRecorder';
 import { SpeechRecogniser } from './speechRecogniser';
+import { LocalSpeechRecogniser } from './localSpeechRecogniser';
+import { ISpeechRecogniser } from './ISpeechRecogniser';
 import { TextInserter } from './textInserter';
 import { HotkeyManager } from './hotkeyManager';
 import { WebServer } from './webServer';
@@ -35,13 +37,24 @@ const audioFeedback = new AudioFeedback();
 
 let isToggleListening = false;
 
-// Get or create speech recognizer with current API key
-function getSpeechRecognizer(): SpeechRecogniser | null {
-  const apiKey = configManager.getApiKey();
-  if (!apiKey || apiKey.trim().length === 0) {
-    return null;
+// Get or create speech recognizer based on configured mode
+function getSpeechRecognizer(): ISpeechRecogniser | null {
+  const mode = configManager.getWhisperMode();
+  
+  if (mode === 'local') {
+    const modelSize = configManager.getLocalWhisperModel();
+    console.log(`Using local Whisper (${modelSize} model)`);
+    return new LocalSpeechRecogniser(modelSize);
+  } else {
+    // API mode
+    const apiKey = configManager.getApiKey();
+    if (!apiKey || apiKey.trim().length === 0) {
+      console.log('API mode selected but no API key configured');
+      return null;
+    }
+    console.log('Using OpenAI Whisper API');
+    return new SpeechRecogniser(apiKey);
   }
-  return new SpeechRecogniser(apiKey);
 }
 
 // Push-to-talk handler
