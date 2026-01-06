@@ -45,7 +45,10 @@ if (!apiKey) {
 // Initialize components
 const audioRecorder = new AudioRecorder();
 const textInserter = new TextInserter();
-const hotkeyManager = new HotkeyManager();
+const hotkeyManager = new HotkeyManager(
+  configManager.getPushToTalkHotkey(),
+  configManager.getToggleListenHotkey()
+);
 const webServer = new WebServer(webServerPort, configManager, audioRecorder);
 const audioFeedback = new AudioFeedback();
 

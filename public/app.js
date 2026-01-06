@@ -1,5 +1,33 @@
 let hotkeysEnabled = true;
 
+function hotkeyToString(hotkey) {
+  if (!hotkey || !hotkey.keyCode) return 'Not set';
+  
+  const parts = [];
+  if (hotkey.ctrl) parts.push('Ctrl');
+  if (hotkey.shift) parts.push('Shift');
+  if (hotkey.alt) parts.push('Alt');
+  
+  // Key code to name mapping
+  const keyNames = {
+    3653: 'Pause/Break',
+    8: 'Backspace',
+    9: 'Tab',
+    13: 'Enter',
+    27: 'Escape',
+    32: 'Space',
+    112: 'F1', 113: 'F2', 114: 'F3', 115: 'F4',
+    116: 'F5', 117: 'F6', 118: 'F7', 119: 'F8',
+    120: 'F9', 121: 'F10', 122: 'F11', 123: 'F12',
+  };
+  
+  const keyName = keyNames[hotkey.keyCode] || 
+    (hotkey.keyCode >= 65 && hotkey.keyCode <= 90 ? String.fromCharCode(hotkey.keyCode) : `Key${hotkey.keyCode}`);
+  
+  parts.push(keyName);
+  return parts.join('+');
+}
+
 async function updateConfig() {
   try {
     const res = await fetch('/api/config');
@@ -55,6 +83,19 @@ async function updateConfig() {
     // Update minimize on startup
     document.getElementById('minimizeOnStartup').checked = data.minimizeOnStartup === true;
     
+    // Update hotkey displays
+    document.getElementById('pushToTalkDisplay').value = hotkeyToString(data.pushToTalkHotkey);
+    document.getElementById('pushToTalkKeyCode').value = data.pushToTalkHotkey?.keyCode || '';
+    
+    document.getElementById('toggleListenDisplay').value = hotkeyToString(data.toggleListenHotkey);
+    document.getElementById('toggleListenKeyCode').value = data.toggleListenHotkey?.keyCode || '';
+    document.getElementById('toggleShift').checked = data.toggleListenHotkey?.shift === true;
+    document.getElementById('toggleCtrl').checked = data.toggleListenHotkey?.ctrl === true;
+    document.getElementById('toggleAlt').checked = data.toggleListenHotkey?.alt === true;
+    
+    // Update displays when key codes or modifiers change
+    updateHotkeyDisplays();
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -70,6 +111,26 @@ async function updateConfig() {
     }
   } catch (err) {
     console.error('Failed to update config:', err);
+  }
+}
+
+function updateHotkeyDisplays() {
+  // Update push-to-talk display
+  const pttKeyCode = parseInt(document.getElementById('pushToTalkKeyCode').value, 10);
+  if (!isNaN(pttKeyCode) && pttKeyCode > 0) {
+    document.getElementById('pushToTalkDisplay').value = hotkeyToString({ keyCode: pttKeyCode });
+  }
+  
+  // Update toggle listen display
+  const toggleKeyCode = parseInt(document.getElementById('toggleListenKeyCode').value, 10);
+  if (!isNaN(toggleKeyCode) && toggleKeyCode > 0) {
+    const hotkey = {
+      keyCode: toggleKeyCode,
+      shift: document.getElementById('toggleShift').checked,
+      ctrl: document.getElementById('toggleCtrl').checked,
+      alt: document.getElementById('toggleAlt').checked,
+    };
+    document.getElementById('toggleListenDisplay').value = hotkeyToString(hotkey);
   }
 }
 
@@ -532,6 +593,130 @@ document.getElementById('minimizeOnStartup').addEventListener('change', async (e
     console.error('Failed to update minimize on startup:', err);
     alert('Error updating setting');
     e.target.checked = !e.target.checked; // revert
+  }
+});
+
+// Hotkey capture functionality
+let keyCodeHelpVisible = false;
+
+document.getElementById('showKeyCodeHelp').addEventListener('click', (e) => {
+  e.preventDefault();
+  const helpBox = document.getElementById('keyCodeHelp');
+  keyCodeHelpVisible = !keyCodeHelpVisible;
+  helpBox.style.display = keyCodeHelpVisible ? 'block' : 'none';
+});
+
+document.getElementById('showKeyCodeHelp2').addEventListener('click', (e) => {
+  e.preventDefault();
+  const helpBox = document.getElementById('keyCodeHelp');
+  keyCodeHelpVisible = !keyCodeHelpVisible;
+  helpBox.style.display = keyCodeHelpVisible ? 'block' : 'none';
+});
+
+// Update display when key code changes
+document.getElementById('pushToTalkKeyCode').addEventListener('input', (e) => {
+  const keyCode = parseInt(e.target.value, 10);
+  if (!isNaN(keyCode)) {
+    document.getElementById('pushToTalkDisplay').value = hotkeyToString({ keyCode });
+  }
+});
+
+document.getElementById('toggleListenKeyCode').addEventListener('input', (e) => {
+  const keyCode = parseInt(e.target.value, 10);
+  if (!isNaN(keyCode)) {
+    const hotkey = {
+      keyCode,
+      shift: document.getElementById('toggleShift').checked,
+      ctrl: document.getElementById('toggleCtrl').checked,
+      alt: document.getElementById('toggleAlt').checked,
+    };
+    document.getElementById('toggleListenDisplay').value = hotkeyToString(hotkey);
+  }
+});
+
+// Update display when modifiers change
+['toggleShift', 'toggleCtrl', 'toggleAlt'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    const keyCode = parseInt(document.getElementById('toggleListenKeyCode').value, 10);
+    if (!isNaN(keyCode)) {
+      const hotkey = {
+        keyCode,
+        shift: document.getElementById('toggleShift').checked,
+        ctrl: document.getElementById('toggleCtrl').checked,
+        alt: document.getElementById('toggleAlt').checked,
+      };
+      document.getElementById('toggleListenDisplay').value = hotkeyToString(hotkey);
+    }
+  });
+});
+
+// Push-to-talk hotkey save
+document.getElementById('savePushToTalk').addEventListener('click', async () => {
+  const keyCode = parseInt(document.getElementById('pushToTalkKeyCode').value, 10);
+  
+  if (isNaN(keyCode) || keyCode < 0) {
+    alert('Please enter a valid key code');
+    return;
+  }
+  
+  const hotkey = {
+    keyCode,
+    shift: false,
+    ctrl: false,
+    alt: false,
+  };
+  
+  try {
+    const res = await fetch('/api/config/push-to-talk-hotkey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hotkey })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert(`Push-to-talk hotkey set to: ${hotkeyToString(hotkey)}. Please restart the application.`);
+    } else {
+      alert('Failed to save hotkey');
+    }
+  } catch (err) {
+    console.error('Failed to save hotkey:', err);
+    alert('Error saving hotkey');
+  }
+});
+
+// Toggle listen hotkey save
+document.getElementById('saveToggleListen').addEventListener('click', async () => {
+  const keyCode = parseInt(document.getElementById('toggleListenKeyCode').value, 10);
+  
+  if (isNaN(keyCode) || keyCode < 0) {
+    alert('Please enter a valid key code');
+    return;
+  }
+  
+  const hotkey = {
+    keyCode,
+    shift: document.getElementById('toggleShift').checked,
+    ctrl: document.getElementById('toggleCtrl').checked,
+    alt: document.getElementById('toggleAlt').checked,
+  };
+  
+  try {
+    const res = await fetch('/api/config/toggle-listen-hotkey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hotkey })
+    });
+    
+    if (res.ok) {
+      await updateConfig();
+      alert(`Toggle listen hotkey set to: ${hotkeyToString(hotkey)}. Please restart the application.`);
+    } else {
+      alert('Failed to save hotkey');
+    }
+  } catch (err) {
+    console.error('Failed to save hotkey:', err);
+    alert('Error saving hotkey');
   }
 });
 

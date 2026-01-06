@@ -318,3 +318,52 @@ button:disabled {
   outline: none;
   border-color: #007acc;
 }
+
+.hotkey-capture {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.hotkey-capture input[type="text"] {
+  flex: 1;
+  padding: 8px 12px;
+  background: #2d2d30;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 14px;
+  cursor: default;
+}
+
+.hotkey-capture input[type="text"]:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.hotkey-capture input[type="text"].capturing {
+  border-color: #f0ad4e;
+  background: #3a2f1b;
+}
+
+.info-box {
+  background: #2d2d30;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 13px;
+}
+
+.info-box ul {
+  line-height: 1.8;
+}
+
+.info-box strong {
+  color: #4ec9b0;
+}
+
+.modifier-checks {
+  display: flex;
+  gap: 10px;
+}

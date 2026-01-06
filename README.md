@@ -99,8 +99,8 @@ The application is built with modularity in mind. See the source files for alter
 - [x] Adjustable transcription history limit
 - [x] Whisper language selection (currently auto-detects)
 - [x] Whisper API parameters (temperature, prompt, etc.)
+- [x] Customizable hotkeys in settings
+- [x] Export/import configuration
+- [x] Web server port configuration in GUI
+- [x] Minimize to tray on startup option
 - [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
-- [ ] Customizable hotkeys in settings
-- [ ] Export/import configuration
-- [ ] Web server port configuration in GUI
-- [ ] Minimize to tray on startup option

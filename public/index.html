@@ -169,6 +169,56 @@
         </label>
         <small>Start minimized without showing the console window (Windows only). Requires application restart to take effect.</small>
       </div>
+
+      <div class="config-item">
+        <label>Push-to-Talk Hotkey:</label>
+        <div class="hotkey-capture">
+          <input type="text" id="pushToTalkDisplay" readonly placeholder="Current hotkey...">
+          <input type="number" id="pushToTalkKeyCode" placeholder="Key code" style="width: 100px;" min="0">
+          <button id="savePushToTalk">Save</button>
+        </div>
+        <small>Enter the key code manually (e.g., 3653 for Pause/Break, 112-123 for F1-F12). Requires restart. <a href="#" id="showKeyCodeHelp">Show common key codes</a></small>
+      </div>
+
+      <div class="config-item">
+        <label>Toggle Listen Hotkey:</label>
+        <div class="hotkey-capture">
+          <input type="text" id="toggleListenDisplay" readonly placeholder="Current hotkey...">
+          <input type="number" id="toggleListenKeyCode" placeholder="Key code" style="width: 100px;" min="0">
+          <button id="saveToggleListen">Save</button>
+        </div>
+        <small>Enter the key code and check modifiers. Requires restart. <a href="#" id="showKeyCodeHelp2">Show common key codes</a></small>
+        <div class="modifier-checks" style="margin-top: 5px;">
+          <label class="checkbox-label" style="display: inline-flex; margin-right: 15px;">
+            <input type="checkbox" id="toggleShift">
+            <span>Shift</span>
+          </label>
+          <label class="checkbox-label" style="display: inline-flex; margin-right: 15px;">
+            <input type="checkbox" id="toggleCtrl">
+            <span>Ctrl</span>
+          </label>
+          <label class="checkbox-label" style="display: inline-flex;">
+            <input type="checkbox" id="toggleAlt">
+            <span>Alt</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="keyCodeHelp" class="info-box" style="display: none; margin-top: 10px;">
+        <strong>Common Key Codes (uiohook-napi):</strong>
+        <ul style="margin: 10px 0; padding-left: 20px; columns: 2;">
+          <li><strong>3653</strong> - Pause/Break</li>
+          <li><strong>112-123</strong> - F1 to F12</li>
+          <li><strong>65-90</strong> - A to Z</li>
+          <li><strong>48-57</strong> - 0 to 9</li>
+          <li><strong>32</strong> - Space</li>
+          <li><strong>13</strong> - Enter</li>
+          <li><strong>27</strong> - Escape</li>
+          <li><strong>8</strong> - Backspace</li>
+          <li><strong>9</strong> - Tab</li>
+        </ul>
+        <small>Note: Use the application's console output to see the actual key code when you press a key.</small>
+      </div>
     </div>
 
     <div class="transcriptions" id="transcriptions">

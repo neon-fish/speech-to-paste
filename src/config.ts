@@ -2,6 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { WhisperMode, WhisperModelSize } from './ISpeechRecogniser';
 
+export interface HotkeyConfig {
+  keyCode: number;
+  shift?: boolean;
+  ctrl?: boolean;
+  alt?: boolean;
+}
+
 export interface Config {
   openaiApiKey: string;
   whisperMode: WhisperMode;
@@ -15,6 +22,8 @@ export interface Config {
   whisperPrompt: string;
   webServerPort: number;
   minimizeOnStartup: boolean;
+  pushToTalkHotkey: HotkeyConfig;
+  toggleListenHotkey: HotkeyConfig;
 }
 
 export class ConfigManager {
@@ -55,6 +64,8 @@ export class ConfigManager {
       whisperPrompt: '',
       webServerPort: 5933,
       minimizeOnStartup: false,
+      pushToTalkHotkey: { keyCode: 3653 }, // Pause/Break key
+      toggleListenHotkey: { keyCode: 3653, shift: true }, // Shift+Pause/Break
     };
 
     // Write default config with helpful comments
@@ -83,7 +94,11 @@ export class ConfigManager {
       "_webServerPortOptions": "Port for the web interface (default: 5933). Requires restart to take effect.",
       "webServerPort": 5933,
       "_minimizeOnStartupOptions": "Start minimized to system tray without showing console window (Windows only)",
-      "minimizeOnStartup": false
+      "minimizeOnStartup": false,
+      "_pushToTalkHotkeyOptions": "Push-to-talk hotkey. Default: Pause/Break (keyCode: 3653)",
+      "pushToTalkHotkey": { "keyCode": 3653 },
+      "_toggleListenHotkeyOptions": "Toggle listening hotkey. Default: Shift+Pause/Break (keyCode: 3653 with shift)",
+      "toggleListenHotkey": { "keyCode": 3653, "shift": true }
     };
 
     try {
@@ -122,6 +137,8 @@ export class ConfigManager {
       "_promptOptions": "Optional prompt to guide transcription. Useful for context, terminology, or fixing common errors.",
       "_webServerPortOptions": "Port for the web interface (default: 5933). Requires restart to take effect.",
       "_minimizeOnStartupOptions": "Start minimized to system tray without showing console window (Windows only)",
+      "_pushToTalkHotkeyOptions": "Push-to-talk hotkey. Default: Pause/Break (keyCode: 3653)",
+      "_toggleListenHotkeyOptions": "Toggle listening hotkey. Default: Shift+Pause/Break (keyCode: 3653 with shift)",
       ...this.config
     };
 
@@ -191,6 +208,14 @@ export class ConfigManager {
 
   getMinimizeOnStartup(): boolean {
     return this.config.minimizeOnStartup === true; // default to false if not set
+  }
+
+  getPushToTalkHotkey(): HotkeyConfig {
+    return this.config.pushToTalkHotkey || { keyCode: 3653 }; // default to Pause/Break
+  }
+
+  getToggleListenHotkey(): HotkeyConfig {
+    return this.config.toggleListenHotkey || { keyCode: 3653, shift: true }; // default to Shift+Pause
   }
 
   /**

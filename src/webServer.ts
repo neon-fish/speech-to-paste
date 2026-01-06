@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import * as path from 'path';
-import { ConfigManager } from './config';
+import { ConfigManager, HotkeyConfig } from './config';
 import { LocalSpeechRecogniser } from './localSpeechRecogniser';
 import { DEFAULT_PORT } from './constants';
 import { AudioRecorder } from './audioRecorder';
@@ -86,6 +86,8 @@ export class WebServer {
         whisperPrompt: this.configManager.getWhisperPrompt(),
         webServerPort: this.configManager.getWebServerPort(),
         minimizeOnStartup: this.configManager.getMinimizeOnStartup(),
+        pushToTalkHotkey: this.configManager.getPushToTalkHotkey(),
+        toggleListenHotkey: this.configManager.getToggleListenHotkey(),
       });
     });
 
@@ -297,6 +299,46 @@ export class WebServer {
         res.json({ success: true, requiresRestart: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update minimize on startup' });
+      }
+    });
+
+    // Set push-to-talk hotkey
+    this.app.post('/api/config/push-to-talk-hotkey', (req, res) => {
+      try {
+        const { hotkey } = req.body;
+        if (!hotkey || typeof hotkey.keyCode !== 'number') {
+          return res.status(400).json({ error: 'Invalid hotkey configuration' });
+        }
+        const hotkeyConfig: HotkeyConfig = {
+          keyCode: hotkey.keyCode,
+          shift: hotkey.shift === true,
+          ctrl: hotkey.ctrl === true,
+          alt: hotkey.alt === true,
+        };
+        this.configManager.updateConfig({ pushToTalkHotkey: hotkeyConfig });
+        res.json({ success: true, requiresRestart: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update push-to-talk hotkey' });
+      }
+    });
+
+    // Set toggle listen hotkey
+    this.app.post('/api/config/toggle-listen-hotkey', (req, res) => {
+      try {
+        const { hotkey } = req.body;
+        if (!hotkey || typeof hotkey.keyCode !== 'number') {
+          return res.status(400).json({ error: 'Invalid hotkey configuration' });
+        }
+        const hotkeyConfig: HotkeyConfig = {
+          keyCode: hotkey.keyCode,
+          shift: hotkey.shift === true,
+          ctrl: hotkey.ctrl === true,
+          alt: hotkey.alt === true,
+        };
+        this.configManager.updateConfig({ toggleListenHotkey: hotkeyConfig });
+        res.json({ success: true, requiresRestart: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update toggle listen hotkey' });
       }
     });
   }
