@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech-to-Text Monitor</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Speech-to-Text Monitor</h1>
+      <div class="status">
+        <span>Status:</span>
+        <div class="status-indicator status-idle" id="statusIndicator"></div>
+        <span id="statusText">Idle</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="toggleHotkeys">Disable Hotkeys</button>
+      <button id="clearHistory">Clear History</button>
+      <button onclick="location.reload()">Refresh</button>
+    </div>
+
+    <div class="transcriptions" id="transcriptions">
+      <div class="empty-state">No transcriptions yet</div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
