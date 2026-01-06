@@ -52,6 +52,11 @@
       </div>
 
       <div class="config-item" id="modelSection" style="display: none;">
+        <div id="localWarning" class="warning-box" style="display: none;">
+          <strong>⚠ Warning:</strong>
+          <p class="warning-message">Local Whisper requires native compilation which is not yet set up. Please see README for setup instructions or use API mode.</p>
+        </div>
+        
         <label for="whisperModel">Local Model Size:</label>
         <div class="select-group">
           <select id="whisperModel">

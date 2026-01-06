@@ -26,6 +26,20 @@ async function updateConfig() {
     
     // Update model selection
     document.getElementById('whisperModel').value = data.localWhisperModel || 'base';
+    
+    // Show warning if local mode is selected but not available
+    const localWarning = document.getElementById('localWarning');
+    if (mode === 'local' && !data.localWhisperAvailable) {
+      if (localWarning) {
+        localWarning.style.display = 'block';
+        if (data.localWhisperError) {
+          localWarning.querySelector('.warning-message').textContent = 
+            'Local Whisper is not available: ' + data.localWhisperError;
+        }
+      }
+    } else if (localWarning) {
+      localWarning.style.display = 'none';
+    }
   } catch (err) {
     console.error('Failed to update config:', err);
   }

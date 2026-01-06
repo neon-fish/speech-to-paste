@@ -88,6 +88,7 @@ The application is built with modularity in mind. See the source files for alter
 - Requires Visual C++ build tools for robotjs compilation
 - Cloud API calls add latency and cost per transcription
 - Cannot verify if a text input field is actually focused before pasting
+- ~~**Local Whisper mode** requires native compilation (not currently functional on Windows - see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))~~ - requires testing
 
 ## TODO / Future Features
 
@@ -96,7 +97,7 @@ The application is built with modularity in mind. See the source files for alter
 - [ ] Toggle auto-paste (automatically paste vs copy to clipboard only)
 - [ ] Audio input device selection
 - [ ] Whisper language selection (currently auto-detects)
-- [ ] Local Whisper support (see [WHISPER_LOCAL_PLAN.md](WHISPER_LOCAL_PLAN.md))
+- [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
 - [ ] Customizable hotkeys in settings
 - [ ] Adjustable transcription history limit
 - [ ] Export/import configuration

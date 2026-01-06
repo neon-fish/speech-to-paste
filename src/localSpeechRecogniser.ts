@@ -3,7 +3,15 @@ import * as path from 'path';
 import * as os from 'os';
 import { ISpeechRecogniser, WhisperModelSize } from './ISpeechRecogniser';
 
-const whisper = require('whisper-node');
+let whisper: any = null;
+let whisperInitError: string | null = null;
+
+try {
+  whisper = require('whisper-node');
+} catch (error: any) {
+  whisperInitError = `Failed to load whisper-node: ${error.message}`;
+  console.error('[LocalWhisper] Warning:', whisperInitError);
+}
 
 /**
  * Local Whisper speech recognition using whisper.cpp
@@ -27,6 +35,16 @@ export class LocalSpeechRecogniser implements ISpeechRecogniser {
   }
 
   async recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string> {
+    // Check if whisper is available
+    if (!whisper || whisperInitError) {
+      throw new Error(
+        'Local Whisper is not available. ' +
+        'whisper-node requires native compilation which is not yet set up. ' +
+        'Please use API mode or see README for local setup instructions. ' +
+        (whisperInitError ? `Error: ${whisperInitError}` : '')
+      );
+    }
+    
     const tempWavFile = path.join(os.tmpdir(), `whisper_${Date.now()}.wav`);
     
     try {
@@ -74,6 +92,20 @@ export class LocalSpeechRecogniser implements ISpeechRecogniser {
       console.error('Error during local transcription:', error);
       throw error;
     }
+  }
+
+  /**
+   * Check if local Whisper is available and properly initialized
+   */
+  static isAvailable(): boolean {
+    return whisper !== null && whisperInitError === null;
+  }
+
+  /**
+   * Get initialization error if any
+   */
+  static getInitError(): string | null {
+    return whisperInitError;
   }
 
   /**

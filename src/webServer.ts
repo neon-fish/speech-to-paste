@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import * as path from 'path';
 import { ConfigManager } from './config';
+import { LocalSpeechRecogniser } from './localSpeechRecogniser';
 import { DEFAULT_PORT } from './constants';
 
 export interface TranscriptionEntry {
@@ -69,6 +70,8 @@ export class WebServer {
         apiKeyPreview: apiKey ? apiKey.substring(0, 8) + '...' : '',
         whisperMode: this.configManager.getWhisperMode(),
         localWhisperModel: this.configManager.getLocalWhisperModel(),
+        localWhisperAvailable: LocalSpeechRecogniser.isAvailable(),
+        localWhisperError: LocalSpeechRecogniser.getInitError(),
       });
     });
 

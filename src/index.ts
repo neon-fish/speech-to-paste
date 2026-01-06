@@ -43,6 +43,19 @@ function getSpeechRecognizer(): ISpeechRecogniser | null {
   
   if (mode === 'local') {
     const modelSize = configManager.getLocalWhisperModel();
+    
+    // Check if local Whisper is available
+    if (!LocalSpeechRecogniser.isAvailable()) {
+      const error = LocalSpeechRecogniser.getInitError();
+      console.error('Local Whisper mode selected but not available:');
+      console.error(error || 'whisper-node not properly initialized');
+      console.error('');
+      console.error('Local Whisper requires native compilation of whisper.cpp.');
+      console.error(`Please switch to API mode via the web interface at http://localhost:${DEFAULT_PORT}`);
+      console.error('or see the README for local setup instructions.');
+      return null;
+    }
+    
     console.log(`Using local Whisper (${modelSize} model)`);
     return new LocalSpeechRecogniser(modelSize);
   } else {

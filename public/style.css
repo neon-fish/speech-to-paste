@@ -232,3 +232,28 @@ button:disabled {
   outline: none;
   border-color: #007acc;
 }
+
+.warning-box {
+  background: #3a2f1b;
+  border: 1px solid #c0932c;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 15px;
+}
+
+.warning-box strong {
+  color: #f0ad4e;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.warning-box p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d4d4d4;
+}
+
+.warning-message {
+  margin-top: 5px;
+}
