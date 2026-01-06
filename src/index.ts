@@ -35,8 +35,9 @@ const hotkeyManager = new HotkeyManager();
 const webServer = new WebServer(DEFAULT_PORT, configManager);
 const audioFeedback = new AudioFeedback();
 
-// Apply audio feedback setting from config
+// Apply settings from config
 audioFeedback.setEnabled(configManager.getAudioFeedbackEnabled());
+textInserter.setAutoPaste(configManager.getAutoPasteEnabled());
 
 let isToggleListening = false;
 

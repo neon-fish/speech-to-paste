@@ -30,6 +30,9 @@ async function updateConfig() {
     // Update audio feedback checkbox
     document.getElementById('audioFeedbackEnabled').checked = data.audioFeedbackEnabled !== false;
     
+    // Update auto-paste checkbox
+    document.getElementById('autoPasteEnabled').checked = data.autoPasteEnabled !== false;
+    
     // Show warning if local mode is selected but not available
     const localWarning = document.getElementById('localWarning');
     if (mode === 'local' && !data.localWhisperAvailable) {
@@ -217,6 +220,27 @@ document.getElementById('audioFeedbackEnabled').addEventListener('change', async
   } catch (err) {
     console.error('Failed to update audio feedback:', err);
     alert('Error updating audio feedback setting');
+    e.target.checked = !e.target.checked; // revert
+  }
+});
+
+// Auto-paste toggle
+document.getElementById('autoPasteEnabled').addEventListener('change', async (e) => {
+  try {
+    const res = await fetch('/api/config/auto-paste', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: e.target.checked })
+    });
+    if (res.ok) {
+      console.log('Auto-paste updated:', e.target.checked);
+    } else {
+      alert('Failed to update auto-paste setting');
+      e.target.checked = !e.target.checked; // revert
+    }
+  } catch (err) {
+    console.error('Failed to update auto-paste:', err);
+    alert('Error updating auto-paste setting');
     e.target.checked = !e.target.checked; // revert
   }
 });

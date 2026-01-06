@@ -73,6 +73,7 @@ export class WebServer {
         localWhisperAvailable: LocalSpeechRecogniser.isAvailable(),
         localWhisperError: LocalSpeechRecogniser.getInitError(),
         audioFeedbackEnabled: this.configManager.getAudioFeedbackEnabled(),
+        autoPasteEnabled: this.configManager.getAutoPasteEnabled(),
       });
     });
 
@@ -127,6 +128,20 @@ export class WebServer {
           return res.status(400).json({ error: 'enabled must be a boolean' });
         }
         this.configManager.updateConfig({ audioFeedbackEnabled: enabled });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update config' });
+      }
+    });
+
+    // Toggle auto-paste
+    this.app.post('/api/config/auto-paste', (req, res) => {
+      try {
+        const { enabled } = req.body;
+        if (typeof enabled !== 'boolean') {
+          return res.status(400).json({ error: 'enabled must be a boolean' });
+        }
+        this.configManager.updateConfig({ autoPasteEnabled: enabled });
         res.json({ success: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update config' });

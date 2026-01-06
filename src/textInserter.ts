@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { execSync } from 'child_process';
+import notifier from 'node-notifier';
 
 /**
  * Text insertion module
@@ -20,12 +21,20 @@ import { execSync } from 'child_process';
 
 export class TextInserter {
   private clipboardExePath: string | null = null;
+  private autoPaste: boolean = true;
 
   constructor() {
     // When running in pkg, extract the clipboard executable
     if ((process as any).pkg) {
       this.extractClipboardExecutable();
     }
+  }
+
+  /**
+   * Set whether to auto-paste text or copy to clipboard only
+   */
+  setAutoPaste(enabled: boolean): void {
+    this.autoPaste = enabled;
   }
 
   private extractClipboardExecutable(): void {
@@ -62,7 +71,11 @@ export class TextInserter {
   }
   
   insertText(text: string): void {
-    console.log(`Inserting text: "${text}"`);
+    if (this.autoPaste) {
+      console.log(`Inserting text: "${text}"`);
+    } else {
+      console.log(`Copying to clipboard: "${text}"`);
+    }
     
     try {
       // If running in pkg and we have extracted exe, use it directly
@@ -78,15 +91,31 @@ export class TextInserter {
       }
     } catch (error) {
       console.error('Clipboard write failed, falling back to character-by-character typing:', error);
-      this.insertTextCharByChar(text);
+      if (this.autoPaste) {
+        this.insertTextCharByChar(text);
+      }
       return;
     }
     
-    // Small delay to ensure clipboard is ready and modifiers are released
-    robot.setKeyboardDelay(50);
-    
-    // Paste using Ctrl+V
-    robot.keyTap('v', ['control']);
+    if (this.autoPaste) {
+      // Small delay to ensure clipboard is ready and modifiers are released
+      robot.setKeyboardDelay(50);
+      
+      // Paste using Ctrl+V
+      robot.keyTap('v', ['control']);
+    } else {
+      // Show notification that text is in clipboard
+      const previewLength = 100;
+      const preview = text.length > previewLength ? text.substring(0, previewLength) + '...' : text;
+      notifier.notify({
+        title: 'Speech written to clipboard:',
+        message: preview,
+        sound: false,
+        wait: false,
+        icon: "", // No icon
+        contentImage: "", // No image
+      });
+    }
   }
 
   insertTextCharByChar(text: string): void {

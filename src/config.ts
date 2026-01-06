@@ -7,6 +7,7 @@ export interface Config {
   whisperMode: WhisperMode;
   localWhisperModel: WhisperModelSize;
   audioFeedbackEnabled: boolean;
+  autoPasteEnabled: boolean;
 }
 
 export class ConfigManager {
@@ -39,6 +40,7 @@ export class ConfigManager {
       whisperMode: 'api',
       localWhisperModel: 'base',
       audioFeedbackEnabled: true,
+      autoPasteEnabled: true,
     };
 
     // Write default config with helpful comments
@@ -51,7 +53,9 @@ export class ConfigManager {
       "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
       "localWhisperModel": "base",
       "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
-      "audioFeedbackEnabled": true
+      "audioFeedbackEnabled": true,
+      "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
+      "autoPasteEnabled": true
     };
 
     try {
@@ -82,6 +86,7 @@ export class ConfigManager {
       "_whisperModeOptions": "Use 'api' for OpenAI Whisper API or 'local' for offline transcription",
       "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
       "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
+      "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
       ...this.config
     };
 
@@ -116,5 +121,9 @@ export class ConfigManager {
 
   getAudioFeedbackEnabled(): boolean {
     return this.config.audioFeedbackEnabled !== false; // default to true if not set
+  }
+
+  getAutoPasteEnabled(): boolean {
+    return this.config.autoPasteEnabled !== false; // default to true if not set
   }
 }
