@@ -1,5 +1,5 @@
 import * as robot from 'robotjs';
-import clipboardy from 'clipboardy';
+import * as clipboardy from 'clipboardy';
 
 /**
  * Text insertion module
