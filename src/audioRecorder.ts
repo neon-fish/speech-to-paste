@@ -20,8 +20,10 @@ export class AudioRecorder {
   private audioBuffer: Int16Array[] = [];
   private recording = false;
   private recordingInterval: NodeJS.Timeout | null = null;
+  private timeoutTimer: NodeJS.Timeout | null = null;
+  private timeoutCallback: (() => void) | null = null;
 
-  startRecording(): void {
+  startRecording(timeoutMs?: number, onTimeout?: () => void): void {
     console.log('Starting recording...');
     
     // Get default audio device
@@ -34,6 +36,17 @@ export class AudioRecorder {
     
     this.recording = true;
     this.audioBuffer = [];
+    this.timeoutCallback = onTimeout || null;
+    
+    // Set timeout if specified
+    if (timeoutMs && onTimeout) {
+      this.timeoutTimer = setTimeout(() => {
+        console.log(`Recording timeout reached (${timeoutMs}ms)`);
+        if (this.recording && this.timeoutCallback) {
+          this.timeoutCallback();
+        }
+      }, timeoutMs);
+    }
     
     // Read audio frames continuously
     this.recordingInterval = setInterval(async () => {
@@ -58,6 +71,13 @@ export class AudioRecorder {
     
     // Set flag first to stop new reads
     this.recording = false;
+    
+    // Clear timeout timer
+    if (this.timeoutTimer) {
+      clearTimeout(this.timeoutTimer);
+      this.timeoutTimer = null;
+    }
+    this.timeoutCallback = null;
     
     // Clear interval
     if (this.recordingInterval) {

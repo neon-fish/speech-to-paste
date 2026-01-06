@@ -40,6 +40,38 @@ audioFeedback.setEnabled(configManager.getAudioFeedbackEnabled());
 
 let isToggleListening = false;
 
+// Helper function to process transcription
+async function processTranscription(audioData: Int16Array): Promise<void> {
+  // Get speech recognizer with current API key
+  const speechRecognizer = getSpeechRecognizer();
+  if (!speechRecognizer) {
+    console.error('Cannot transcribe: OpenAI API key not configured');
+    webServer.setStatus('idle');
+    systemTray.setStatus('idle');
+    return;
+  }
+  
+  try {
+    webServer.setStatus('transcribing');
+    systemTray.setStatus('transcribing');
+    console.log('Transcribing audio...');
+    const text = await speechRecognizer.recognizeFromAudioData(audioData);
+    console.log(`Recognized: "${text}"`);
+    
+    if (text) {
+      textInserter.insertText(text);
+      webServer.addTranscription(text);
+      audioFeedback.playStopSound();
+    }
+    webServer.setStatus('idle');
+    systemTray.setStatus('idle');
+  } catch (error) {
+    console.error('Error during transcription:', error);
+    webServer.setStatus('idle');
+    systemTray.setStatus('idle');
+  }
+}
+
 // Get or create speech recognizer based on configured mode
 function getSpeechRecognizer(): ISpeechRecogniser | null {
   const mode = configManager.getWhisperMode();
@@ -81,41 +113,27 @@ hotkeyManager.registerPushToTalk(
       audioFeedback.playStartSound();
       webServer.setStatus('recording');
       systemTray.setStatus('recording');
-      audioRecorder.startRecording();
+      
+      // Set 29-second timeout for API mode (Whisper API has 30s limit)
+      const mode = configManager.getWhisperMode();
+      if (mode === 'api') {
+        audioRecorder.startRecording(29000, async () => {
+          console.log('API timeout: Auto-stopping recording at 29 seconds');
+          if (audioRecorder.isRecording()) {
+            const audioData = audioRecorder.stopRecording();
+            await processTranscription(audioData);
+          }
+        });
+      } else {
+        audioRecorder.startRecording();
+      }
     }
   },
   // On release
   async () => {
     if (audioRecorder.isRecording()) {
       const audioData = audioRecorder.stopRecording();
-      
-      // Get speech recognizer with current API key
-      const speechRecognizer = getSpeechRecognizer();
-      if (!speechRecognizer) {
-        console.error('Cannot transcribe: OpenAI API key not configured');
-        webServer.setStatus('idle');
-        return;
-      }
-      
-      try {
-        webServer.setStatus('transcribing');
-        systemTray.setStatus('transcribing');
-        console.log('Transcribing audio...');
-        const text = await speechRecognizer.recognizeFromAudioData(audioData);
-        console.log(`Recognized: "${text}"`);
-        
-        if (text) {
-          textInserter.insertText(text);
-          webServer.addTranscription(text);
-          audioFeedback.playStopSound();
-        }
-        webServer.setStatus('idle');
-        systemTray.setStatus('idle');
-      } catch (error) {
-        console.error('Error during transcription:', error);
-        webServer.setStatus('idle');
-        systemTray.setStatus('idle');
-      }
+      await processTranscription(audioData);
     }
   }
 );
@@ -134,38 +152,26 @@ hotkeyManager.registerToggle(async () => {
     audioFeedback.playStartSound();
     webServer.setStatus('recording');
     systemTray.setStatus('recording');
-    audioRecorder.startRecording();
+    
+    // Set 29-second timeout for API mode (Whisper API has 30s limit)
+    const mode = configManager.getWhisperMode();
+    if (mode === 'api') {
+      audioRecorder.startRecording(29000, async () => {
+        console.log('API timeout: Auto-stopping recording at 29 seconds');
+        if (audioRecorder.isRecording()) {
+          isToggleListening = false;
+          hotkeyManager.setToggleListening(false);
+          const audioData = audioRecorder.stopRecording();
+          await processTranscription(audioData);
+        }
+      });
+    } else {
+      audioRecorder.startRecording();
+    }
   } else {
     console.log('Toggle: Stopped listening');
     const audioData = audioRecorder.stopRecording();
-    
-    // Get speech recognizer with current API key
-    const speechRecognizer = getSpeechRecognizer();
-    if (!speechRecognizer) {
-      console.error('Cannot transcribe: OpenAI API key not configured');
-      webServer.setStatus('idle');
-      return;
-    }
-    
-    try {
-      webServer.setStatus('transcribing');
-      systemTray.setStatus('transcribing');
-      console.log('Transcribing audio...');
-      const text = await speechRecognizer.recognizeFromAudioData(audioData);
-      console.log(`Recognized: "${text}"`);
-      
-      if (text) {
-        textInserter.insertText(text);
-        webServer.addTranscription(text);
-        audioFeedback.playStopSound();
-      }
-      webServer.setStatus('idle');
-      systemTray.setStatus('idle');
-    } catch (error) {
-      console.error('Error during transcription:', error);
-      webServer.setStatus('idle');
-      systemTray.setStatus('idle');
-    }
+    await processTranscription(audioData);
   }
 });
 
@@ -187,7 +193,7 @@ const systemTray = new SystemTray({
   },
   onOpenSettings: () => {
     // Open browser to web interface
-    const url = 'http://localhost:3000';
+    const url = `http://localhost:${DEFAULT_PORT}`;
     exec(`start ${url}`);
   },
   onExit: () => {

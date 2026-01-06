@@ -53,19 +53,13 @@ export class SystemTray {
         checked: !this.hotkeysEnabled,
         enabled: true,
       },
-      {
-        title: '---',
-        tooltip: '',
-      },
+      SysTray.separator,
       {
         title: 'Open Settings',
         tooltip: 'Open web interface',
         enabled: true,
       },
-      {
-        title: '---',
-        tooltip: '',
-      },
+      SysTray.separator,
       {
         title: 'Exit',
         tooltip: 'Exit application',
