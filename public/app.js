@@ -1,5 +1,23 @@
 let hotkeysEnabled = true;
 
+async function updateConfig() {
+  try {
+    const res = await fetch('/api/config');
+    const data = await res.json();
+    
+    const statusSpan = document.getElementById('apiKeyStatus');
+    if (data.hasApiKey) {
+      statusSpan.textContent = `✓ Configured (${data.apiKeyPreview})`;
+      statusSpan.className = 'success';
+    } else {
+      statusSpan.textContent = '⚠ Not configured';
+      statusSpan.className = 'error';
+    }
+  } catch (err) {
+    console.error('Failed to update config:', err);
+  }
+}
+
 async function updateStatus() {
   try {
     const res = await fetch('/api/status');
@@ -66,6 +84,34 @@ document.getElementById('clearHistory').addEventListener('click', async () => {
   }
 });
 
+document.getElementById('saveApiKey').addEventListener('click', async () => {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  
+  if (!apiKey) {
+    alert('Please enter an API key');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/config/apikey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey })
+    });
+    
+    if (res.ok) {
+      document.getElementById('apiKey').value = '';
+      await updateConfig();
+      alert('API key saved successfully! You may need to restart the application.');
+    } else {
+      alert('Failed to save API key');
+    }
+  } catch (err) {
+    console.error('Failed to save API key:', err);
+    alert('Error saving API key');
+  }
+});
+
 // Update every second
 setInterval(() => {
   updateStatus();
@@ -73,5 +119,6 @@ setInterval(() => {
 }, 1000);
 
 // Initial update
+updateConfig();
 updateStatus();
 updateTranscriptions();

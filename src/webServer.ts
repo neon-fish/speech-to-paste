@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import * as path from 'path';
+import { ConfigManager } from './config';
 
 export interface TranscriptionEntry {
   timestamp: Date;
@@ -17,9 +18,11 @@ export class WebServer {
   private transcriptions: TranscriptionEntry[] = [];
   private currentStatus: AppStatus = 'idle';
   private hotkeysEnabled = true;
+  private configManager: ConfigManager;
 
-  constructor(port: number = 3000) {
+  constructor(port: number = 3000, configManager: ConfigManager) {
     this.port = port;
+    this.configManager = configManager;
     this.app = express();
     this.app.use(cors());
     this.app.use(express.json());
@@ -55,6 +58,29 @@ export class WebServer {
     this.app.post('/api/transcriptions/clear', (req, res) => {
       this.transcriptions = [];
       res.json({ success: true });
+    });
+
+    // Get config (without exposing full API key)
+    this.app.get('/api/config', (req, res) => {
+      const apiKey = this.configManager.getApiKey();
+      res.json({
+        hasApiKey: this.configManager.hasValidApiKey(),
+        apiKeyPreview: apiKey ? apiKey.substring(0, 8) + '...' : '',
+      });
+    });
+
+    // Update API key
+    this.app.post('/api/config/apikey', (req, res) => {
+      try {
+        const { apiKey } = req.body;
+        if (!apiKey || typeof apiKey !== 'string') {
+          return res.status(400).json({ error: 'API key is required' });
+        }
+        this.configManager.updateConfig({ openaiApiKey: apiKey });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update config' });
+      }
     });
   }
 

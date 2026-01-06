@@ -4,22 +4,29 @@ import { SpeechRecogniser } from './speechRecogniser';
 import { TextInserter } from './textInserter';
 import { HotkeyManager } from './hotkeyManager';
 import { WebServer } from './webServer';
+import { ConfigManager } from './config';
 
-// Load environment variables
+// Load environment variables (fallback)
 dotenv.config();
 
-const apiKey = process.env.OPENAI_API_KEY;
+// Initialize config manager
+const configManager = new ConfigManager();
+
+// Get API key from config or environment variable
+const apiKey = configManager.getApiKey() || process.env.OPENAI_API_KEY;
 if (!apiKey) {
-  console.error('Error: OPENAI_API_KEY not found in .env file');
-  process.exit(1);
+  console.error('Error: OpenAI API key not configured');
+  console.error('Please set your API key in config.json or via the web interface at http://localhost:3000');
+  console.error('You can get an API key from: https://platform.openai.com/api-keys');
+  // Don't exit, let the web server start so user can configure it
 }
 
 // Initialize components
 const audioRecorder = new AudioRecorder();
-const speechRecognizer = new SpeechRecogniser(apiKey);
+const speechRecognizer = apiKey ? new SpeechRecogniser(apiKey) : null;
 const textInserter = new TextInserter();
 const hotkeyManager = new HotkeyManager();
-const webServer = new WebServer(3000);
+const webServer = new WebServer(3000, configManager);
 
 let isToggleListening = false;
 
@@ -36,6 +43,13 @@ hotkeyManager.registerPushToTalk(
   async () => {
     if (audioRecorder.isRecording()) {
       const audioData = audioRecorder.stopRecording();
+      
+      // Check if we have an API key and speech recognizer
+      if (!speechRecognizer) {
+        console.error('Cannot transcribe: OpenAI API key not configured');
+        webServer.setStatus('idle');
+        return;
+      }
       
       try {
         webServer.setStatus('transcribing');
@@ -71,6 +85,13 @@ hotkeyManager.registerToggle(async () => {
   } else {
     console.log('Toggle: Stopped listening');
     const audioData = audioRecorder.stopRecording();
+    
+    // Check if we have an API key and speech recognizer
+    if (!speechRecognizer) {
+      console.error('Cannot transcribe: OpenAI API key not configured');
+      webServer.setStatus('idle');
+      return;
+    }
     
     try {
       webServer.setStatus('transcribing');

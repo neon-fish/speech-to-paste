@@ -118,3 +118,74 @@ button:disabled {
   padding: 40px;
   color: #858585;
 }
+
+.config-section {
+  background: #252526;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.config-section h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.config-item {
+  margin-bottom: 15px;
+}
+
+.config-item label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.api-key-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.api-key-input input {
+  flex: 1;
+  padding: 8px 12px;
+  background: #2d2d30;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+.api-key-input input:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.config-item small {
+  color: #858585;
+  font-size: 12px;
+}
+
+.config-item small a {
+  color: #007acc;
+  text-decoration: none;
+}
+
+.config-item small a:hover {
+  text-decoration: underline;
+}
+
+#apiKeyStatus {
+  font-size: 12px;
+  color: #858585;
+}
+
+#apiKeyStatus.success {
+  color: #4ec9b0;
+}
+
+#apiKeyStatus.error {
+  color: #f48771;
+}

@@ -23,6 +23,19 @@
       <button onclick="location.reload()">Refresh</button>
     </div>
 
+    <div class="config-section">
+      <h2>Configuration</h2>
+      <div class="config-item">
+        <label for="apiKey">OpenAI API Key:</label>
+        <div class="api-key-input">
+          <input type="password" id="apiKey" placeholder="sk-...">
+          <button id="saveApiKey">Save</button>
+          <span id="apiKeyStatus"></span>
+        </div>
+        <small>Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></small>
+      </div>
+    </div>
+
     <div class="transcriptions" id="transcriptions">
       <div class="empty-state">No transcriptions yet</div>
     </div>
