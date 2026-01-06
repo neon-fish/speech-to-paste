@@ -25,6 +25,8 @@ A simple Node.js/TypeScript script that captures audio from your microphone, rec
    npm install
    ```
 
+Also install [sox](#) on Windows
+
 3. Build the project:
    ```bash
    npm run build
