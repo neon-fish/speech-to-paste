@@ -5,6 +5,8 @@ import { TextInserter } from './textInserter';
 import { HotkeyManager } from './hotkeyManager';
 import { WebServer } from './webServer';
 import { ConfigManager } from './config';
+import { SystemTray } from './systemTray';
+import { exec } from 'child_process';
 
 // Load environment variables (fallback)
 dotenv.config();
@@ -45,6 +47,7 @@ hotkeyManager.registerPushToTalk(
   () => {
     if (!audioRecorder.isRecording() && webServer.isHotkeysEnabled()) {
       webServer.setStatus('recording');
+      systemTray.setStatus('recording');
       audioRecorder.startRecording();
     }
   },
@@ -63,6 +66,7 @@ hotkeyManager.registerPushToTalk(
       
       try {
         webServer.setStatus('transcribing');
+        systemTray.setStatus('transcribing');
         console.log('Transcribing audio...');
         const text = await speechRecognizer.recognizeFromAudioData(audioData);
         console.log(`Recognized: "${text}"`);
@@ -72,9 +76,11 @@ hotkeyManager.registerPushToTalk(
           webServer.addTranscription(text);
         }
         webServer.setStatus('idle');
+        systemTray.setStatus('idle');
       } catch (error) {
         console.error('Error during transcription:', error);
         webServer.setStatus('idle');
+        systemTray.setStatus('idle');
       }
     }
   }
@@ -91,6 +97,7 @@ hotkeyManager.registerToggle(async () => {
   if (isToggleListening) {
     console.log('Toggle: Started listening');
     webServer.setStatus('recording');
+    systemTray.setStatus('recording');
     audioRecorder.startRecording();
   } else {
     console.log('Toggle: Stopped listening');
@@ -106,6 +113,7 @@ hotkeyManager.registerToggle(async () => {
     
     try {
       webServer.setStatus('transcribing');
+      systemTray.setStatus('transcribing');
       console.log('Transcribing audio...');
       const text = await speechRecognizer.recognizeFromAudioData(audioData);
       console.log(`Recognized: "${text}"`);
@@ -115,9 +123,11 @@ hotkeyManager.registerToggle(async () => {
         webServer.addTranscription(text);
       }
       webServer.setStatus('idle');
+      systemTray.setStatus('idle');
     } catch (error) {
       console.error('Error during transcription:', error);
       webServer.setStatus('idle');
+      systemTray.setStatus('idle');
     }
   }
 });
@@ -132,13 +142,33 @@ console.log('\nPress Ctrl+C to exit');
 hotkeyManager.start();
 webServer.start();
 
-// Handle graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\nShutting down...');
+// Initialize system tray
+const systemTray = new SystemTray({
+  onToggleHotkeys: () => {
+    // Web server already tracks this via its API
+    console.log('Hotkeys toggled via system tray');
+  },
+  onOpenSettings: () => {
+    // Open browser to web interface
+    const url = 'http://localhost:3000';
+    exec(`start ${url}`);
+  },
+  onExit: () => {
+    console.log('\nExiting via system tray...');
+    cleanup();
+  },
+});
+
+// Cleanup function
+function cleanup() {
   hotkeyManager.stop();
   webServer.stop();
+  systemTray.kill();
   if (audioRecorder.isRecording()) {
     audioRecorder.stopRecording();
   }
   process.exit(0);
-});
+}
+
+// Handle graceful shutdown
+process.on('SIGINT', cleanup);
