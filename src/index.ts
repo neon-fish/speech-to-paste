@@ -77,8 +77,8 @@ hotkeyManager.registerToggle(async () => {
 // Start the application
 console.log('Speech-to-text script starting...');
 console.log('Hotkeys:');
-console.log('  Ctrl+Shift+F9: Push-to-talk (hold to record)');
-console.log('  Ctrl+Shift+F10: Toggle listening on/off');
+console.log('  Pause/Break: Push-to-talk (hold to record)');
+console.log('  Shift+Pause/Break: Toggle listening on/off');
 console.log('\nPress Ctrl+C to exit');
 
 hotkeyManager.start();

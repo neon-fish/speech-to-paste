@@ -23,7 +23,7 @@ export class HotkeyManager {
   private onPushToTalkRelease: HotkeyCallback | null = null;
   private onTogglePress: HotkeyCallback | null = null;
   
-  private modifiers = new Set<number>();
+  private shiftPressed = false;
   
   constructor() {
     uIOhook.on('keydown', (event) => this.handleKeyDown(event));
@@ -32,8 +32,8 @@ export class HotkeyManager {
 
   start(): void {
     console.log('Starting hotkey manager...');
-    console.log('Push-to-talk: Ctrl+Shift+F9 (hold)');
-    console.log('Toggle listen: Ctrl+Shift+F10');
+    console.log('Push-to-talk: Pause/Break (hold)');
+    console.log('Toggle listen: Shift+Pause/Break');
     uIOhook.start();
   }
 
@@ -53,21 +53,22 @@ export class HotkeyManager {
   private handleKeyDown(event: { keycode: number }): void {
     const keycode = event.keycode;
     
-    // Track modifier keys
-    if (this.isModifier(keycode)) {
-      this.modifiers.add(keycode);
+    // Track shift key
+    if (keycode === UiohookKey.Shift || keycode === UiohookKey.ShiftRight) {
+      this.shiftPressed = true;
     }
     
-    // Check for Ctrl+Shift+F9 (push-to-talk)
-    if (keycode === UiohookKey.F9 && this.hasCtrlShift() && !this.isPushToTalkPressed) {
+    // Pause key code is 3653 (0xE45 in hex)
+    // Check for Pause (push-to-talk when pressed alone)
+    if (keycode === 3653 && !this.shiftPressed && !this.isPushToTalkPressed) {
       this.isPushToTalkPressed = true;
       if (this.onPushToTalkPress) {
         this.onPushToTalkPress();
       }
     }
     
-    // Check for Ctrl+Shift+F10 (toggle)
-    if (keycode === UiohookKey.F10 && this.hasCtrlShift()) {
+    // Check for Shift+Pause (toggle)
+    if (keycode === 3653 && this.shiftPressed) {
       if (this.onTogglePress) {
         this.onTogglePress();
       }
@@ -77,30 +78,17 @@ export class HotkeyManager {
   private handleKeyUp(event: { keycode: number }): void {
     const keycode = event.keycode;
     
-    // Remove modifier keys
-    if (this.isModifier(keycode)) {
-      this.modifiers.delete(keycode);
+    // Track shift key
+    if (keycode === UiohookKey.Shift || keycode === UiohookKey.ShiftRight) {
+      this.shiftPressed = false;
     }
     
-    // Check for F9 release (push-to-talk)
-    if (keycode === UiohookKey.F9 && this.isPushToTalkPressed) {
+    // Check for Pause release (push-to-talk)
+    if (keycode === 3653 && this.isPushToTalkPressed) {
       this.isPushToTalkPressed = false;
       if (this.onPushToTalkRelease) {
         this.onPushToTalkRelease();
       }
     }
-  }
-
-  private isModifier(keycode: number): boolean {
-    return keycode === UiohookKey.Ctrl || 
-           keycode === UiohookKey.CtrlRight || 
-           keycode === UiohookKey.Shift || 
-           keycode === UiohookKey.ShiftRight;
-  }
-
-  private hasCtrlShift(): boolean {
-    const hasCtrl = this.modifiers.has(UiohookKey.Ctrl) || this.modifiers.has(UiohookKey.CtrlRight);
-    const hasShift = this.modifiers.has(UiohookKey.Shift) || this.modifiers.has(UiohookKey.ShiftRight);
-    return hasCtrl && hasShift;
   }
 }
