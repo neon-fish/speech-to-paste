@@ -23,12 +23,13 @@ export class SystemTray {
   constructor(callbacks: TrayCallbacks) {
     this.callbacks = callbacks;
     
-    // Set up icon paths
+    // Set up icon paths - use .ico on Windows, .png elsewhere
     const iconsDir = path.join(__dirname, '..', 'icons');
+    const iconExtension = process.platform === 'win32' ? 'ico' : 'png';
     this.iconPaths = {
-      idle: path.join(iconsDir, 'idle.ico'),
-      recording: path.join(iconsDir, 'recording.ico'),
-      transcribing: path.join(iconsDir, 'transcribing.ico'),
+      idle: path.join(iconsDir, `idle.${iconExtension}`),
+      recording: path.join(iconsDir, `recording.${iconExtension}`),
+      transcribing: path.join(iconsDir, `transcribing.${iconExtension}`),
     };
 
     this.systray = new SysTray({

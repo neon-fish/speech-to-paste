@@ -71,11 +71,11 @@ The executable will be created in the `bin/` directory and includes all necessar
 
 ## Requirements
 
-- **Windows 10/11**
+- **Operating System**: Windows 10/11 (macOS/Linux support in development)
 - **Node.js 20+** (for development)
 - **OpenAI API key** ([get one here](https://platform.openai.com/api-keys))
 - **Microphone access**
-- **Visual C++ build tools** (for robotjs compilation)
+- **Build tools**: Visual C++ (Windows), Xcode Command Line Tools (macOS), or build-essential (Linux) - required for robotjs compilation
 
 ## Architecture
 
@@ -89,12 +89,13 @@ The application is built with modularity in mind. See the source files for alter
 
 ## Known Limitations
 
-- Windows only (due to robotjs and system tray dependencies)
-- Requires Visual C++ build tools for robotjs compilation
+- **Platform support**: Currently Windows-only for text insertion (robotjs dependency). Cross-platform support in progress - system tray and hotkeys already compatible with macOS/Linux
+- Requires platform-specific build tools for robotjs compilation (Visual C++ on Windows, Xcode on macOS, build-essential on Linux)
 - Cloud API calls add latency and cost per transcription
 - Cannot verify if a text input field is actually focused before pasting
 - Recording limited to 25MB (~13 minutes at 16kHz) per the Whisper API constraints
 - Hotkey customization requires manual entry of key codes (use the reference table in web interface)
+- macOS/Linux will require appropriate permissions for microphone access and keyboard automation
 - ~~**Local Whisper mode** requires native compilation (not currently functional on Windows - see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))~~ - requires testing
 
 ## Configuration Options
@@ -110,4 +111,12 @@ All settings can be configured via the web interface at http://localhost:5933:
 
 ## TODO / Future Features
 
+- [ ] **Cross-platform support** (Linux/macOS):
+  - [x] System tray icons - use .png format on non-Windows platforms
+  - [ ] Platform-specific text insertion (replace robotjs Ctrl+V with OS-specific paste commands)
+  - [ ] Platform-specific minimize on startup handling
+  - [ ] Multi-platform packaging configuration
+  - [ ] Platform guards for robotjs permissions and compatibility
+  - [ ] Test on macOS and Linux environments
+  - [ ] Document platform-specific permission requirements
 - [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
