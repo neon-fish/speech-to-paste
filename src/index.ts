@@ -6,6 +6,7 @@ import { HotkeyManager } from './hotkeyManager';
 import { WebServer } from './webServer';
 import { ConfigManager } from './config';
 import { SystemTray } from './systemTray';
+import { AudioFeedback } from './audioFeedback';
 import { DEFAULT_PORT } from './constants';
 import { exec } from 'child_process';
 
@@ -30,6 +31,7 @@ const audioRecorder = new AudioRecorder();
 const textInserter = new TextInserter();
 const hotkeyManager = new HotkeyManager();
 const webServer = new WebServer(DEFAULT_PORT, configManager);
+const audioFeedback = new AudioFeedback();
 
 let isToggleListening = false;
 
@@ -47,6 +49,7 @@ hotkeyManager.registerPushToTalk(
   // On press
   () => {
     if (!audioRecorder.isRecording() && webServer.isHotkeysEnabled()) {
+      audioFeedback.playStartSound();
       webServer.setStatus('recording');
       systemTray.setStatus('recording');
       audioRecorder.startRecording();
@@ -55,6 +58,7 @@ hotkeyManager.registerPushToTalk(
   // On release
   async () => {
     if (audioRecorder.isRecording()) {
+      audioFeedback.playStopSound();
       const audioData = audioRecorder.stopRecording();
       
       // Get speech recognizer with current API key
@@ -98,11 +102,13 @@ hotkeyManager.registerToggle(async () => {
   
   if (isToggleListening) {
     console.log('Toggle: Started listening');
+    audioFeedback.playStartSound();
     webServer.setStatus('recording');
     systemTray.setStatus('recording');
     audioRecorder.startRecording();
   } else {
     console.log('Toggle: Stopped listening');
+    audioFeedback.playStopSound();
     const audioData = audioRecorder.stopRecording();
     
     // Get speech recognizer with current API key

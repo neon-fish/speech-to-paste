@@ -88,3 +88,18 @@ The application is built with modularity in mind. See the source files for alter
 - Requires Visual C++ build tools for robotjs compilation
 - Cloud API calls add latency and cost per transcription
 - Cannot verify if a text input field is actually focused before pasting
+
+## TODO / Future Features
+
+- [ ] Add listening/stopped listening audio files
+- [ ] Enable/disable audio feedback in web GUI
+- [ ] Toggle auto-paste (automatically paste vs copy to clipboard only)
+- [ ] Audio input device selection
+- [ ] Whisper language selection (currently auto-detects)
+- [ ] Local Whisper support (see [WHISPER_LOCAL_PLAN.md](WHISPER_LOCAL_PLAN.md))
+- [ ] Customizable hotkeys in settings
+- [ ] Adjustable transcription history limit
+- [ ] Export/import configuration
+- [ ] Whisper API parameters (temperature, prompt, etc.)
+- [ ] Web server port configuration in GUI
+- [ ] Minimize to tray on startup option
