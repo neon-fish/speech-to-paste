@@ -30,6 +30,8 @@ A simple Node.js/TypeScript script that captures audio from your microphone, rec
    npm run build
    ```
 
+! Note: `robotjs` must be built using `node-gyp`, see the [docs](https://github.com/octalmage/robotjs)
+
 4. Run:
    ```bash
    npm start
