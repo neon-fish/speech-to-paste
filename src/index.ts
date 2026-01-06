@@ -94,6 +94,7 @@ hotkeyManager.registerToggle(async () => {
   }
   
   isToggleListening = !isToggleListening;
+  hotkeyManager.setToggleListening(isToggleListening);
   
   if (isToggleListening) {
     console.log('Toggle: Started listening');
