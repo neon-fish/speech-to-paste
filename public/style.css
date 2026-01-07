@@ -122,13 +122,47 @@ button:disabled {
 .config-section {
   background: #252526;
   border-radius: 8px;
-  padding: 20px;
+  padding: 0;
   margin-bottom: 20px;
+  border: 1px solid #3e3e42;
+}
+
+.config-section summary {
+  padding: 20px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+
+.config-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.config-section summary::before {
+  content: '▶';
+  display: inline-block;
+  margin-right: 10px;
+  transition: transform 0.2s;
+  font-size: 12px;
+}
+
+.config-section[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.config-section summary:hover {
+  background: #2d2d30;
+}
+
+.config-section > div {
+  padding: 0 20px 20px 20px;
 }
 
 .config-section h2 {
   font-size: 18px;
-  margin-bottom: 15px;
+  margin: 0;
 }
 
 .config-item {
