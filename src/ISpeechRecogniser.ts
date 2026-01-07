@@ -12,5 +12,5 @@ export interface ISpeechRecogniser {
   recognizeFromAudioData(audioData: Buffer | Int16Array): Promise<string>;
 }
 
-export type WhisperMode = 'api' | 'local';
+export type WhisperMode = 'api' | 'local' | 'leopard';
 export type WhisperModelSize = 'tiny' | 'base' | 'small' | 'medium' | 'large';

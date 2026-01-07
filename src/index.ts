@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import { AudioRecorder } from './audioRecorder';
 import { SpeechRecogniser } from './speechRecogniser';
 import { LocalSpeechRecogniser } from './localSpeechRecogniser';
+import { LeopardRecogniser } from './leopardRecogniser';
 import { ISpeechRecogniser } from './ISpeechRecogniser';
 import { TextInserter } from './textInserter';
 import { HotkeyManager } from './hotkeyManager';
@@ -98,7 +99,18 @@ function getSpeechRecognizer(): ISpeechRecogniser | null {
   const temperature = configManager.getWhisperTemperature();
   const prompt = configManager.getWhisperPrompt();
   
-  if (mode === 'local') {
+  if (mode === 'leopard') {
+    // Picovoice Leopard mode
+    const accessKey = configManager.getPicovoiceAccessKey();
+    if (!accessKey || accessKey.trim().length === 0) {
+      console.log('Leopard mode selected but no Picovoice access key configured');
+      console.log(`Please add your access key via the web interface at http://localhost:${webServerPort}`);
+      console.log('Get a free access key from: https://console.picovoice.ai/');
+      return null;
+    }
+    console.log('Using Picovoice Leopard (on-device)');
+    return new LeopardRecogniser(accessKey, true); // Enable automatic punctuation
+  } else if (mode === 'local') {
     const modelSize = configManager.getLocalWhisperModel();
     
     // Check if local Whisper is available

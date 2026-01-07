@@ -70,9 +70,12 @@ export class WebServer {
     // Get config (without exposing full API key)
     this.app.get('/api/config', (req, res) => {
       const apiKey = this.configManager.getApiKey();
+      const picovoiceKey = this.configManager.getPicovoiceAccessKey();
       res.json({
         hasApiKey: this.configManager.hasValidApiKey(),
         apiKeyPreview: apiKey ? apiKey.substring(0, 8) + '...' : '',
+        hasPicovoiceAccessKey: this.configManager.hasValidPicovoiceAccessKey(),
+        picovoiceAccessKeyPreview: picovoiceKey ? picovoiceKey.substring(0, 8) + '...' : '',
         whisperMode: this.configManager.getWhisperMode(),
         localWhisperModel: this.configManager.getLocalWhisperModel(),
         localWhisperAvailable: LocalSpeechRecogniser.isAvailable(),
@@ -105,15 +108,29 @@ export class WebServer {
       }
     });
 
-    // Update Whisper mode
+    // Update Picovoice access key
+    this.app.post('/api/config/picovoice-access-key', (req, res) => {
+      try {
+        const { accessKey } = req.body;
+        if (!accessKey || typeof accessKey !== 'string') {
+          return res.status(400).json({ error: 'Access key is required' });
+        }
+        this.configManager.updateConfig({ picovoiceAccessKey: accessKey });
+        res.json({ success: true, requiresRestart: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update config' });
+      }
+    });
+
+    // Update speech recognition mode
     this.app.post('/api/config/whisper-mode', (req, res) => {
       try {
         const { mode } = req.body;
-        if (!mode || (mode !== 'api' && mode !== 'local')) {
-          return res.status(400).json({ error: 'Invalid mode. Must be "api" or "local"' });
+        if (!mode || (mode !== 'api' && mode !== 'local' && mode !== 'leopard')) {
+          return res.status(400).json({ error: 'Invalid mode. Must be "api", "local", or "leopard"' });
         }
         this.configManager.updateConfig({ whisperMode: mode });
-        res.json({ success: true });
+        res.json({ success: true, requiresRestart: mode === 'leopard' });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update config' });
       }

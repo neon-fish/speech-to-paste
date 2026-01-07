@@ -30,18 +30,22 @@
       <summary><h2>Configuration</h2></summary>
       
       <div class="config-item">
-        <label>Whisper Mode:</label>
+        <label>Speech Recognition Mode:</label>
         <div class="radio-group">
           <label class="radio-label">
             <input type="radio" name="whisperMode" value="api" id="modeApi">
             <span>OpenAI API (Cloud)</span>
           </label>
           <label class="radio-label">
+            <input type="radio" name="whisperMode" value="leopard" id="modeLeopard">
+            <span>Picovoice Leopard (On-Device)</span>
+          </label>
+          <label class="radio-label">
             <input type="radio" name="whisperMode" value="local" id="modeLocal">
-            <span>Local (Offline)</span>
+            <span>Whisper Local (Offline)</span>
           </label>
         </div>
-        <small>Choose between cloud API (requires key & internet) or local processing (no costs)</small>
+        <small>OpenAI API requires internet & API key. Leopard runs on-device (requires Picovoice key). Whisper Local is offline but requires setup.</small>
       </div>
 
       <div class="config-item" id="apiKeySection">
@@ -52,6 +56,16 @@
           <span id="apiKeyStatus"></span>
         </div>
         <small>Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a></small>
+      </div>
+
+      <div class="config-item" id="leopardKeySection" style="display: none;">
+        <label for="picovoiceAccessKey">Picovoice Access Key:</label>
+        <div class="api-key-input">
+          <input type="password" id="picovoiceAccessKey" placeholder="Enter your Picovoice access key...">
+          <button id="savePicovoiceKey">Save</button>
+          <span id="picovoiceKeyStatus"></span>
+        </div>
+        <small>Get a free access key from <a href="https://console.picovoice.ai/" target="_blank">Picovoice Console</a>. Leopard transcribes on-device with automatic punctuation.</small>
       </div>
 
       <div class="config-item" id="modelSection" style="display: none;">

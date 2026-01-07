@@ -46,11 +46,23 @@ async function updateConfig() {
     // Update Whisper mode radio buttons
     const mode = data.whisperMode || 'api';
     document.getElementById('modeApi').checked = (mode === 'api');
+    document.getElementById('modeLeopard').checked = (mode === 'leopard');
     document.getElementById('modeLocal').checked = (mode === 'local');
     
     // Show/hide relevant sections based on mode
     document.getElementById('apiKeySection').style.display = (mode === 'api') ? 'block' : 'none';
+    document.getElementById('leopardKeySection').style.display = (mode === 'leopard') ? 'block' : 'none';
     document.getElementById('modelSection').style.display = (mode === 'local') ? 'block' : 'none';
+    
+    // Update Picovoice access key status
+    const picovoiceStatusSpan = document.getElementById('picovoiceKeyStatus');
+    if (data.hasPicovoiceAccessKey) {
+      picovoiceStatusSpan.textContent = `✓ Configured (${data.picovoiceAccessKeyPreview})`;
+      picovoiceStatusSpan.className = 'success';
+    } else {
+      picovoiceStatusSpan.textContent = '⚠ Not configured';
+      picovoiceStatusSpan.className = 'error';
+    }
     
     // Update model selection
     document.getElementById('whisperModel').value = data.localWhisperModel || 'base';
@@ -310,6 +322,34 @@ document.getElementById('saveApiKey').addEventListener('click', async () => {
   }
 });
 
+document.getElementById('savePicovoiceKey').addEventListener('click', async () => {
+  const accessKey = document.getElementById('picovoiceAccessKey').value.trim();
+  
+  if (!accessKey) {
+    alert('Please enter a Picovoice access key');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/config/picovoice-access-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accessKey })
+    });
+    
+    if (res.ok) {
+      document.getElementById('picovoiceAccessKey').value = '';
+      await updateConfig();
+      alert('Picovoice access key saved successfully! Please restart the application.');
+    } else {
+      alert('Failed to save access key');
+    }
+  } catch (err) {
+    console.error('Failed to save Picovoice access key:', err);
+    alert('Error saving access key');
+  }
+});
+
 // Whisper mode change handlers
 document.getElementById('modeApi').addEventListener('change', async (e) => {
   if (e.target.checked) {
@@ -339,6 +379,24 @@ document.getElementById('modeLocal').addEventListener('change', async (e) => {
       if (res.ok) {
         await updateConfig();
         alert('Local mode enabled. Model will download on first use.');
+      }
+    } catch (err) {
+      console.error('Failed to update whisper mode:', err);
+    }
+  }
+});
+
+document.getElementById('modeLeopard').addEventListener('change', async (e) => {
+  if (e.target.checked) {
+    try {
+      const res = await fetch('/api/config/whisper-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'leopard' })
+      });
+      if (res.ok) {
+        await updateConfig();
+        alert('Picovoice Leopard mode enabled. On-device transcription with automatic punctuation. Requires restart.');
       }
     } catch (err) {
       console.error('Failed to update whisper mode:', err);

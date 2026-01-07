@@ -13,6 +13,7 @@ export interface Config {
   openaiApiKey: string;
   whisperMode: WhisperMode;
   localWhisperModel: WhisperModelSize;
+  picovoiceAccessKey: string;
   audioFeedbackEnabled: boolean;
   autoPasteEnabled: boolean;
   audioDeviceIndex: number;
@@ -55,6 +56,7 @@ export class ConfigManager {
       openaiApiKey: '',
       whisperMode: 'api',
       localWhisperModel: 'base',
+      picovoiceAccessKey: '',
       audioFeedbackEnabled: true,
       autoPasteEnabled: true,
       audioDeviceIndex: -1,
@@ -73,10 +75,12 @@ export class ConfigManager {
       "_comment": "Speech-to-Text Configuration",
       "_instructions": "Get your OpenAI API key from https://platform.openai.com/api-keys",
       "openaiApiKey": "",
-      "_whisperModeOptions": "Use 'api' for OpenAI Whisper API or 'local' for offline transcription",
+      "_whisperModeOptions": "Use 'api' for OpenAI Whisper API, 'local' for offline Whisper, or 'leopard' for Picovoice Leopard",
       "whisperMode": "api",
       "_localModelOptions": "Available models: tiny, base, small, medium, large (larger = more accurate but slower)",
       "localWhisperModel": "base",
+      "_picovoiceAccessKeyOptions": "Get your Picovoice access key from https://console.picovoice.ai/ (required for Leopard mode)",
+      "picovoiceAccessKey": "",
       "_audioFeedbackOptions": "Enable or disable audio feedback sounds when recording starts/stops",
       "audioFeedbackEnabled": true,
       "_autoPasteOptions": "Enable to automatically paste transcribed text, disable to copy to clipboard only",
@@ -169,6 +173,14 @@ export class ConfigManager {
 
   getLocalWhisperModel(): WhisperModelSize {
     return this.config.localWhisperModel || 'base';
+  }
+
+  getPicovoiceAccessKey(): string {
+    return this.config.picovoiceAccessKey || '';
+  }
+
+  hasValidPicovoiceAccessKey(): boolean {
+    return !!this.config.picovoiceAccessKey && this.config.picovoiceAccessKey.trim().length > 0;
   }
 
   getAudioFeedbackEnabled(): boolean {

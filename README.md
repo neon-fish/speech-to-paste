@@ -1,8 +1,13 @@
 # Speech-to-Paste
 
-A cross-platform desktop application that captures audio from your microphone, transcribes speech using OpenAI's Whisper API, and automatically types the result into any focused text field.
+A cross-platform desktop application that captures audio from your microphone, transcribes speech using OpenAI's Whisper API or Picovoice Leopard (on-device), and automatically types the result into any focused text field.
 
 **Platform Support:** Fully functional on Windows. macOS and Linux support in development (core features implemented, testing in progress).
+
+**Speech Recognition Options:**
+- **OpenAI Whisper API** - Cloud-based, highly accurate, requires API key and internet
+- **Picovoice Leopard** - On-device transcription, private, no cloud costs after initial setup, automatic punctuation
+- **Local Whisper** - Offline transcription (requires manual setup, see docs)
 
 ## Features
 
@@ -48,13 +53,22 @@ A cross-platform desktop application that captures audio from your microphone, t
    npm start
    ```
 
-4. Configure your OpenAI API key:
-   - Open http://localhost:5933 in your browser
-   - Enter your API key (get one at https://platform.openai.com/api-keys)
+4. Configure your speech recognition:
+   - **For OpenAI Whisper API**: Get an API key from [OpenAI](https://platform.openai.com/api-keys)
+   - **For Picovoice Leopard**: Get a free access key from [Picovoice Console](https://console.picovoice.ai/)
+   - Open http://localhost:5933 in your browser and enter your key
    - Or create a `config.json` file next to the executable with:
      ```json
      {
-       "openaiApiKey": "your_api_key_here"
+       "openaiApiKey": "your_api_key_here",
+       "whisperMode": "api"
+     }
+     ```
+     Or for Leopard:
+     ```json
+     {
+       "picovoiceAccessKey": "your_access_key_here",
+       "whisperMode": "leopard"
      }
      ```
 
@@ -114,7 +128,9 @@ The application is built with modularity in mind. See the source files for alter
 
 All settings can be configured via the web interface at http://localhost:5933:
 
-- **API Settings**: OpenAI API key, language, temperature (0-1), and prompt text
+- **Speech Recognition Mode**: Choose between OpenAI API (cloud), Picovoice Leopard (on-device), or Local Whisper (offline)
+- **API Keys**: OpenAI API key (for cloud mode) or Picovoice access key (for Leopard mode)
+- **API Settings** (Whisper API only): Language, temperature (0-1), and prompt text
 - **Audio**: Device selection and feedback sounds (enable/disable)
 - **Behavior**: Auto-paste toggle, transcription history limit, minimize on startup
 - **Hotkeys**: Customizable key codes with modifiers (Shift, Ctrl, Alt)
