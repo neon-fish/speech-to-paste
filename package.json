@@ -1,6 +1,6 @@
 {
   "name": "speech-to-paste",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Windows desktop application for speech-to-text transcription with automatic text insertion using OpenAI Whisper",
   "main": "dist/index.js",
   "scripts": {
