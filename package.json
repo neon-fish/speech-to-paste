@@ -48,7 +48,8 @@
       "node_modules/@picovoice/leopard-node/**/*",
       "node_modules/robotjs/**/*",
       "node_modules/uiohook-napi/**/*",
-      "node_modules/whisper-node/**/*"
+      "node_modules/whisper-node/**/*",
+      "node_modules/systray2/**/*"
     ],
     "outputPath": "bin",
     "targets": [
