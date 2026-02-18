@@ -73,6 +73,9 @@ async function updateConfig() {
     // Update auto-paste checkbox
     document.getElementById('autoPasteEnabled').checked = data.autoPasteEnabled !== false;
     
+    // Update remove trailing period checkbox
+    document.getElementById('removeTrailingPeriod').checked = data.removeTrailingPeriod === true;
+    
     // Update audio device selection
     await updateAudioDevices();
     document.getElementById('audioDevice').value = data.audioDeviceIndex ?? -1;
@@ -464,6 +467,27 @@ document.getElementById('autoPasteEnabled').addEventListener('change', async (e)
   } catch (err) {
     console.error('Failed to update auto-paste:', err);
     alert('Error updating auto-paste setting');
+    e.target.checked = !e.target.checked; // revert
+  }
+});
+
+// Remove trailing period toggle
+document.getElementById('removeTrailingPeriod').addEventListener('change', async (e) => {
+  try {
+    const res = await fetch('/api/config/remove-trailing-period', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: e.target.checked })
+    });
+    if (res.ok) {
+      console.log('Remove trailing period updated:', e.target.checked);
+    } else {
+      alert('Failed to update remove trailing period setting');
+      e.target.checked = !e.target.checked; // revert
+    }
+  } catch (err) {
+    console.error('Failed to update remove trailing period:', err);
+    alert('Error updating remove trailing period setting');
     e.target.checked = !e.target.checked; // revert
   }
 });

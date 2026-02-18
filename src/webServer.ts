@@ -91,6 +91,7 @@ export class WebServer {
         minimizeOnStartup: this.configManager.getMinimizeOnStartup(),
         pushToTalkHotkey: this.configManager.getPushToTalkHotkey(),
         toggleListenHotkey: this.configManager.getToggleListenHotkey(),
+        removeTrailingPeriod: this.configManager.getRemoveTrailingPeriod(),
       });
     });
 
@@ -356,6 +357,20 @@ export class WebServer {
         res.json({ success: true, requiresRestart: true });
       } catch (error) {
         res.status(500).json({ error: 'Failed to update toggle listen hotkey' });
+      }
+    });
+
+    // Toggle remove trailing period
+    this.app.post('/api/config/remove-trailing-period', (req, res) => {
+      try {
+        const { enabled } = req.body;
+        if (typeof enabled !== 'boolean') {
+          return res.status(400).json({ error: 'enabled must be a boolean' });
+        }
+        this.configManager.updateConfig({ removeTrailingPeriod: enabled });
+        res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to update remove trailing period' });
       }
     });
   }

@@ -60,6 +60,21 @@ audioRecorder.setDevice(configManager.getAudioDeviceIndex());
 
 let isToggleListening = false;
 
+// Helper function to process transcription text based on config
+function processTranscriptionText(text: string): string {
+  if (!configManager.getRemoveTrailingPeriod()) {
+    return text;
+  }
+  
+  // Check if there's only one period and it's at the end
+  const periodCount = (text.match(/\./g) || []).length;
+  if (periodCount === 1 && text.endsWith('.')) {
+    return text.slice(0, -1);
+  }
+  
+  return text;
+}
+
 // Helper function to process transcription
 async function processTranscription(audioData: Int16Array): Promise<void> {
   // Get speech recognizer with current API key
@@ -79,8 +94,12 @@ async function processTranscription(audioData: Int16Array): Promise<void> {
     console.log(`Recognized: "${text}"`);
     
     if (text) {
-      textInserter.insertText(text);
-      webServer.addTranscription(text);
+      const processedText = processTranscriptionText(text);
+      if (processedText !== text) {
+        console.log(`Processed: "${processedText}" (removed trailing period)`);
+      }
+      textInserter.insertText(processedText);
+      webServer.addTranscription(processedText);
       audioFeedback.playStopSound();
     }
     webServer.setStatus('idle');

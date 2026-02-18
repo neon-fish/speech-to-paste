@@ -25,6 +25,7 @@ export interface Config {
   minimizeOnStartup: boolean;
   pushToTalkHotkey: HotkeyConfig;
   toggleListenHotkey: HotkeyConfig;
+  removeTrailingPeriod: boolean;
 }
 
 export class ConfigManager {
@@ -68,6 +69,7 @@ export class ConfigManager {
       minimizeOnStartup: false,
       pushToTalkHotkey: { keyCode: 3653 }, // Pause/Break key
       toggleListenHotkey: { keyCode: 3653, shift: true }, // Shift+Pause/Break
+      removeTrailingPeriod: false,
     };
 
     // Write default config with helpful comments
@@ -102,7 +104,9 @@ export class ConfigManager {
       "_pushToTalkHotkeyOptions": "Push-to-talk hotkey. Default: Pause/Break (keyCode: 3653)",
       "pushToTalkHotkey": { "keyCode": 3653 },
       "_toggleListenHotkeyOptions": "Toggle listening hotkey. Default: Shift+Pause/Break (keyCode: 3653 with shift)",
-      "toggleListenHotkey": { "keyCode": 3653, "shift": true }
+      "toggleListenHotkey": { "keyCode": 3653, "shift": true },
+      "_removeTrailingPeriodOptions": "Remove trailing period if it's the only period in the transcribed text",
+      "removeTrailingPeriod": false
     };
 
     try {
@@ -143,6 +147,7 @@ export class ConfigManager {
       "_minimizeOnStartupOptions": "Start minimized to system tray without showing console window (Windows only)",
       "_pushToTalkHotkeyOptions": "Push-to-talk hotkey. Default: Pause/Break (keyCode: 3653)",
       "_toggleListenHotkeyOptions": "Toggle listening hotkey. Default: Shift+Pause/Break (keyCode: 3653 with shift)",
+      "_removeTrailingPeriodOptions": "Remove trailing period if it's the only period in the transcribed text",
       ...this.config
     };
 
@@ -228,6 +233,10 @@ export class ConfigManager {
 
   getToggleListenHotkey(): HotkeyConfig {
     return this.config.toggleListenHotkey || { keyCode: 3653, shift: true }; // default to Shift+Pause
+  }
+
+  getRemoveTrailingPeriod(): boolean {
+    return this.config.removeTrailingPeriod === true; // default to false if not set
   }
 
   /**
