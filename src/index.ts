@@ -96,7 +96,7 @@ async function processTranscription(audioData: Int16Array): Promise<void> {
     if (text) {
       const processedText = processTranscriptionText(text);
       if (processedText !== text) {
-        console.log(`Processed: "${processedText}" (removed trailing period)`);
+        console.log(`Text processing applied: "${text}" → "${processedText}"`);
       }
       textInserter.insertText(processedText);
       webServer.addTranscription(processedText);
