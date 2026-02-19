@@ -2,7 +2,10 @@
   "name": "speech-to-paste",
   "version": "0.2.1",
   "description": "Windows desktop application for speech-to-text transcription with automatic text insertion using OpenAI Whisper",
+  "author": "Ed Johnson (Neon Fish)",
+  "license": "UNLICENSED",
   "main": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
@@ -10,9 +13,6 @@
     "package": "npm run build && pkg .",
     "package-release": "npm run build && pkg . --compress Brotli"
   },
-  "author": "Ed Johnson (Neon Fish)",
-  "license": "UNLICENSED",
-  "bin": "dist/index.js",
   "dependencies": {
     "@picovoice/leopard-node": "^3.0.0",
     "@picovoice/pvrecorder-node": "^1.2.2",
