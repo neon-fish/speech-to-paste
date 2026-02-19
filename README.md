@@ -5,6 +5,7 @@ A cross-platform desktop application that captures audio from your microphone, t
 **Platform Support:** Fully functional on Windows. macOS and Linux support in development (core features implemented, testing in progress).
 
 **Speech Recognition Options:**
+
 - **OpenAI Whisper API** - Cloud-based, highly accurate, requires API key and internet
 - **Picovoice Leopard** - On-device transcription, private, no cloud costs after initial setup, automatic punctuation
 - **Local Whisper** - Offline transcription (requires manual setup, see docs)
@@ -18,7 +19,7 @@ A cross-platform desktop application that captures audio from your microphone, t
 - **Customizable Global Hotkeys**: Works across all applications (configurable via web interface)
   - Default: `Pause/Break` for push-to-talk (hold to record, release to transcribe)
   - Default: `Shift+Pause/Break` for toggle continuous listening mode (on/off)
-- **Web Interface**: Configure and monitor the application at http://localhost:5933 (port configurable)
+- **Web Interface**: Configure and monitor the application at <http://localhost:5933> (port configurable)
   - OpenAI API key and Whisper settings (language, temperature, prompt)
   - Audio device selection and feedback settings
   - Customizable hotkeys (manual key code entry with reference table)
@@ -32,6 +33,7 @@ A cross-platform desktop application that captures audio from your microphone, t
 ## Setup
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -40,15 +42,17 @@ A cross-platform desktop application that captures audio from your microphone, t
    - **Windows**: Visual C++ build tools
    - **macOS**: Xcode Command Line Tools
    - **Linux**: build-essential package
-   
+
    See the [robotjs documentation](https://github.com/octalmage/robotjs) for details.
 
 2. Build the project:
+
    ```bash
    npm run build
    ```
 
 3. Run the application:
+
    ```bash
    npm start
    ```
@@ -56,15 +60,18 @@ A cross-platform desktop application that captures audio from your microphone, t
 4. Configure your speech recognition:
    - **For OpenAI Whisper API**: Get an API key from [OpenAI](https://platform.openai.com/api-keys)
    - **For Picovoice Leopard**: Get a free access key from [Picovoice Console](https://console.picovoice.ai/)
-   - Open http://localhost:5933 in your browser and enter your key
+   - Open <http://localhost:5933> in your browser and enter your key
    - Or create a `config.json` file next to the executable with:
+
      ```json
      {
        "openaiApiKey": "your_api_key_here",
        "whisperMode": "api"
      }
      ```
+
      Or for Leopard:
+
      ```json
      {
        "picovoiceAccessKey": "your_access_key_here",
@@ -78,7 +85,7 @@ A cross-platform desktop application that captures audio from your microphone, t
 2. Press and hold your configured push-to-talk hotkey (default: `Pause/Break` on Windows) to record audio
 3. Release to automatically transcribe and paste the text
 4. Or use your toggle hotkey (default: `Shift+Pause/Break` on Windows) to enable continuous listening mode
-5. Configure settings, customize hotkeys, and view history at http://localhost:5933
+5. Configure settings, customize hotkeys, and view history at <http://localhost:5933>
 
 ## Packaging
 
@@ -89,6 +96,7 @@ npm run package
 ```
 
 Executables will be created in the `bin/` directory for:
+
 - Windows (x64)
 - macOS (x64 and ARM64)
 - Linux (x64)
@@ -106,6 +114,7 @@ Each includes all necessary dependencies.
 ## Architecture
 
 The application is built with modularity in mind. See the source files for alternatives:
+
 - [`audioRecorder.ts`](src/audioRecorder.ts) - Audio capture using PvRecorder
 - [`speechRecogniser.ts`](src/speechRecogniser.ts) - OpenAI Whisper API integration  
 - [`textInserter.ts`](src/textInserter.ts) - Text insertion via robotjs
@@ -126,7 +135,7 @@ The application is built with modularity in mind. See the source files for alter
 
 ## Configuration Options
 
-All settings can be configured via the web interface at http://localhost:5933:
+All settings can be configured via the web interface at <http://localhost:5933>:
 
 - **Speech Recognition Mode**: Choose between OpenAI API (cloud), Picovoice Leopard (on-device), or Local Whisper (offline)
 - **API Keys**: OpenAI API key (for cloud mode) or Picovoice access key (for Leopard mode)
@@ -149,3 +158,7 @@ All settings can be configured via the web interface at http://localhost:5933:
   - [ ] Test on macOS and Linux environments
   - [ ] Document platform-specific permission requirements
 - [ ] **Local Whisper support** - framework in place but needs alternative implementation (see [LOCAL_WHISPER_SETUP.md](LOCAL_WHISPER_SETUP.md))
+
+## Pinned dependencies
+
+- clipboardy@^2, as >=3 is ESM only
